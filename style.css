@@ -1,0 +1,334 @@
+/* ********** Color Scheme ********** */
+:root {
+    --background_main_color: #001f3f;
+
+    --darkmode_background_color: #373747;
+    --darkmode_secondary_color: #373747;
+    --darkmode_secondary_color_low_opac:#373747 ;
+    --darkmode_hovor_color: #373747 ;
+
+
+    --secondary_color: #0074D9;
+    --secondary_color_low_opac: rgba(0, 116, 217, 0.37);
+    --almost_white: #E5EAF5;
+    --text_gray: #8e8e8e;
+    --hover_color: #001f3f;
+
+}
+
+/* ********** Body ********** */
+
+#body {
+   background-color: var(--background_main_color);
+    background-size: 100% 100%;
+    height: 100vh;
+}
+/* ********** LOGIN FORM ********** */
+#login {
+    display: grid;
+    place-items: center;
+    margin: auto;
+}
+#newMemberCreate {
+    color: white;
+}
+#newMemberReset {
+    color: white;
+}
+#newMemberCreateLink {
+    color: black;
+}
+
+#loginErrorMessage, #addContactErrorLabel {
+    color: red;
+    font-family:"Helvetica Neue", Helvetica, Arial, sans-serif;
+
+}
+
+#form {
+    position: relative;
+    text-align: center;
+    background-color: var(--secondary_color_low_opac);
+    border-radius: 15px;
+    box-shadow: 0 0 15px #000;
+    padding-bottom: 25px;
+    margin: 20px 25px;
+}
+
+#form_header {
+    padding: 30px;
+    background-color: var(--secondary_color_low_opac);
+    color: white;
+    font-family:"Helvetica Neue", Helvetica, Arial, sans-serif;
+    border-radius:15px;
+}
+#form_headertext {
+    color: white;
+    padding: 2%;
+    font-family:"Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: bold;
+    font-size: 30px;
+}
+
+
+#form input {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    outline: 0;
+    width: 90%;
+    border-color: white;
+    margin: 0 0 15px;
+    padding: 15px;
+    box-sizing: border-box;
+    font-size: 14px;
+    border-radius:10px;
+}
+
+#form_main {
+    padding: 5%;
+}
+
+#loginBtn {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 15px;
+    font-weight: bold;
+    background: var(--secondary_color_low_opac);
+    width: 90%;
+    border-radius:30px;
+    margin: 0 0 8px;
+    padding: 15px;
+    color: #FFFFFF;
+    outline: none;
+    border: none;
+}
+
+#form button:hover {
+    cursor: pointer;
+    background: var(--hover_color);
+    border: black;
+    outline: black;
+}
+
+#form label{
+    font-family:"Helvetica Neue", Helvetica, Arial, sans-serif;
+    position: relative;
+    text-align: center;
+    color: white;
+    font-size: 40px;
+    font-weight: bold;
+    border-radius:30px;
+    margin: 0 0 8px;
+    padding: 15px;
+}
+
+#newMemberCreateLink, #newMemberReset {
+    color: white;
+    font-weight: bolder;
+    font-size: 15px;
+    font-family:"Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+/* ********** MAP SCREEN ********** */
+
+#header {
+    grid-area: header;
+}
+.contactList {
+    grid-area: contactList;
+}
+.map {
+    grid-area: map;
+}
+.buttonArea {
+    grid-area: buttonArea;
+}
+
+#map_container {
+    display: grid;
+    position: relative;
+    height: 80%;
+    row-gap: 2%;
+    column-gap: 1%;
+    grid-template-columns: 2fr 4fr 1fr;
+    margin: 1%;
+    grid-template-areas:
+    'header header header header'
+    'contactList map map map'
+    'contactList buttonArea buttonArea buttonArea';
+}
+
+/* ********** Header Menu ********** */
+.headerList {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: var(--secondary_color_low_opac);
+    border-radius: 5px;
+    text-align: center;
+    font-family:"Helvetica Neue", Helvetica, Arial, sans-serif;
+
+}
+
+.headerButtons {
+    border-right: 1px solid var(--almost_white);
+    display: inline-block;
+}
+
+.headerButtonsNoBorder, .headerAdvizButton, .headerWelcomeMessage {
+    display: inline-block;
+}
+
+.headerAdvizButton,  .headerWelcomeMessage {
+    background-color: var(--secondary_color);
+}
+
+
+li a, .headerWelcomeMessage {
+    display: block;
+    color: var(--almost_white);
+    text-align: center;
+    padding: 10px 20px;
+    text-decoration: none;
+    font-family:"Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+
+li a:hover {
+    background-color: var(--secondary_color_low_opac);
+    cursor: pointer;
+}
+/* ********** Map ********** */
+
+
+.map{
+    overflow:hidden;
+    padding-bottom:55%;
+    position:relative;
+    height:0;
+    border-radius: 15px;
+
+}
+
+#mapFrame{
+    left:0;
+    top:0;
+    height:100%;
+    width:100%;
+    position:absolute;
+    border-radius: 15px;
+    border-style: solid;
+    border-color: white;
+}
+
+.mapButton {
+    color: var(--almost_white);
+    font-size: 20px;
+    border: 1px solid var(--almost_white);
+    border-radius: 5px;
+    background-color: var(--secondary_color_low_opac);
+    margin: 0.5%;
+    position: relative;
+
+
+}
+.mapButton:hover {
+    background-color: var(--secondary_color);
+    cursor: pointer;
+}
+
+
+#contactList {
+    overflow-x: auto;
+    overflow-y: auto;
+}
+
+
+#addContactForm , #updateContactForm {
+    background-color: var(--secondary_color_low_opac);
+    background-blend-mode: soft-light;
+    border-radius: 10px;
+    box-shadow: 0 0 15px #000;
+    color:white;
+
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    grid-gap: 10px;
+
+    padding: 1em;
+    margin: 2rem auto 0 auto;
+    max-width: 25%;
+
+}
+
+#addContactForm input, select , #updateContactForm input , select{
+    grid-column: 2 / 3;
+
+    border: 1px solid #9c9c9c;
+    padding: 0.5em;
+    margin-bottom: 0.5rem;
+}
+
+#addContactForm label , #updateContactForm label {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    text-align: left;
+    grid-column: 1 / 2;
+}
+
+#addContactForm h1 , #updateContactForm h1 {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    grid-column: 1 / 4;
+}
+
+#addContactForm button , #updateContactForm button {
+    grid-column: 1 / 4;
+
+
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 15px;
+    font-weight: bold;
+    background: var(--secondary_color_low_opac);
+    border-radius:30px;
+    color: #FFFFFF;
+    outline: none;
+    border: none;
+}
+
+
+#addContactForm button:hover, #updateContactForm button:hover {
+    cursor: pointer;
+    background: var(--hover_color);
+    border: black;
+    outline: black;
+}
+
+#backButtonAdd, #backButtonUpdate{
+    display: flex;
+    width: 6%;
+}
+
+#cList {
+    counter-reset: li;
+    list-style: none;
+    padding: 0;
+    text-shadow: 0 1px 0 rgba(255,255,255,.5);
+}
+
+#cList a {
+    position: relative;
+    display: block;
+    padding: .4em .4em .4em .8em;
+    margin: 0 0 0 2.5em;
+    background: var(--secondary_color);
+    text-decoration: none;
+    transition: all .3s ease-out;
+    border: solid 1px var(--background_main_color);
+}
+
+#cList i {
+    float: left;
+}
+
+#cList a:hover {
+    background: #DCDDE1;
+}
+

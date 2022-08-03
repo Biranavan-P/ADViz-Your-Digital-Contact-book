@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title id="title">AdViz | Login</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script type="module" src="function.js" defer></script>
+    <!-- Data Script  -->
+    <script type="module" src="data/user.js" defer></script>
+    <!-- Icons from Fontawesome  -->
+    <script src="https://kit.fontawesome.com/8268b705e0.js" async crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/@googlemaps/js-api-loader@1.0.0/dist/index.min.js" defer></script>
+</head>
+<body id="body">
+
+<!-- LOGIN FORM  -->
+
+
+<div id="login">
+    <form id="form">
+        <div id="form_header">
+            <h1>AdViz <br> Your Contact Book</h1>
+        </div>
+        <div id="form_main">
+            <div id="form_headertext">LOGIN</div>
+            <div id="loginErrorMessage"></div>
+            <label><input id="usernameLabel" type="text" placeholder="E-Mail or Username" required/></label>
+            <label> <input id="passwordLabel" type="password" placeholder="Password" required/></label>
+            <button id="loginBtn" type="button">LOGIN</button>
+            <p id="newMemberCreate">New Member? <a id="newMemberCreateLink" href="">Create Account</a></p>
+            <a id="newMemberReset" href="">Reset Password</a>
+        </div>
+
+    </form>
+</div>
+
+<!-- <hr> -->
+
+<!-- MAP SCREEN -->
+
+<div id="map_container">
+    <div id="header">
+        <ul class="headerList">
+            <li id="welcomeMessage" style="float: left" class="headerWelcomeMessage">Welcome, TestUser</li>
+            <li class="headerButtons"><a  href=""><i class="fa-solid fa-map"></i> Map</a></li>
+            <li class="headerButtons"><a href=""><i class="fa-solid fa-address-card"></i> Contacts</a></li>
+            <li class="headerButtons"><a href=""><i class="fa-solid fa-circle-info"></i> About</a></li>
+            <li class="headerButtonsNoBorder"><a href="index.html"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
+            <li style="float: right" class="headerAdvizButton"><a href="index.html">ADVIZ</a></li>
+        </ul>
+    </div>
+    <div id="contactList">
+        <aside id="contact_list">
+            <ul id="cList"></ul>
+        </aside>
+    </div>
+    <div class="map">
+        <div id="mapFrame"></div>
+    </div>
+    <div class="buttonArea">
+            <button type="button" id="addContactBtn" class="mapButton">Add Contact</button>
+            <button type="button" id="showAllContactsBtn" class="mapButton">Show All Contacts</button>
+            <button type="button" id="showMyContactsBtn" class="mapButton">Show All My Contacts</button>
+    </div>
+    <br>
+</div>
+
+
+
+<!-- <hr style="margin-top: 150px"> -->
+
+<!-- ADD CONTACT SCREEN -->
+
+<form id="addContactForm">
+    <button id="backButtonAdd"><i class="fa-solid fa-circle-chevron-left"></i></button>
+    <h1>Add a new Contact</h1>
+    <div id="addContactErrorLabel"></div>
+    <label for="firstName">First Name</label> <input id="firstName" type="text" required>
+    <label for="lastName">Last Name</label> <input id="lastName" type="text" required>
+    <label for="streetAndNumber">Street & Number</label> <input id="streetAndNumber" type="text" required>
+    <label for="zipcode">ZIP</label><input id="zipcode" type="text" required>
+    <label for="city">City</label>  <input id="city" type="text" required>
+    <label for="country">Country</label>  <input id="country" type="text">
+    <label for="phone">Phone</label> <input id="phone" type="tel">
+    <label for="dob">Date of birth</label> <input id="dob" type="date">
+    <label for="private" class="privateCheckbox"> Public Contact</label><input id="private" class="privateCheckbox" type="checkbox">
+
+    <button id="addButton">Add</button>
+</form>
+
+
+<!-- <hr> -->
+
+<!-- UPDATE CONTACT SCREEN -->
+
+<form id="updateContactForm">
+    <button id="backButtonUpdate"><i class="fa-solid fa-circle-chevron-left"></i></button>
+    <h1>Update your Contact</h1>
+    <label for="firstNameU">First Name</label> <input id="firstNameU" type="text"  required>
+    <label for="lastNameU">Last Name</label> <input id="lastNameU" type="text" required>
+    <label for="streetAndNumberU">Street & Number</label> <input id="streetAndNumberU" type="text" required>
+    <label for="zipcodeU">ZIP</label><input id="zipcodeU" type="text"  required>
+    <label for="cityU">City</label>  <input id="cityU" type="text" required>
+    <label for="countryU">Country</label>  <input id="countryU" type="text" >
+    <label for="phoneU">Phone</label> <input id="phoneU" type="tel">
+    <label for="dobU">Date of birth</label> <input id="dobU" type="date" >
+    <label for="privateU" class="privateCheckbox"> Public Contact</label><input id="privateU" class="privateCheckboxU" type="checkbox">
+
+    <button>Update</button>
+    <button>Delete</button>
+</form>
+
+<!-- <hr> -->
+
+</body>
+</html>

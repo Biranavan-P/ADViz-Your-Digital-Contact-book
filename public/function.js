@@ -96,7 +96,7 @@ let currentUser = new User();
 let contact1_admina = new ContactEntry("Unknown", "User(A)", "Treskowallee 8", "10318", "Berlin", "Germany", 353637437, "1990-06-04",  true);
 let contact2_admina = new ContactEntry("John", "Doe(A)", "Wilhelminenhofstraße 75A", "12459", "Berlin", "Germany", 6436377, "1990-04-07", false );
 let contact1_normalo = new ContactEntry("Dennis", "Doe(N)", "Straße des 17. Juni 135", "10623", "Berlin", "Germany", 353637437, "1990-06-04", true);
-let contact2_normalo = new ContactEntry("Piet", "Doe(N)", "Kaiserswerther Str. 16-18", "14195 ", "Berlin", "Germany", 88325652, "1990-06-04",true);
+let contact2_normalo = new ContactEntry("Piet", "Doe(N)", "Kaiserswerther Str. 16-18", "14195 ", "Berlin", "Germany", 88325652, "1990-06-04",true)
 
 // Adding contacts to their user
 admina.addContact(contact1_admina);

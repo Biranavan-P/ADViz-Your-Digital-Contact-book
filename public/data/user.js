@@ -20,6 +20,7 @@ class User {
     addContact = (ContactEntry) => {
         this._contacts.push(ContactEntry);
     }
+
 }
 
 

@@ -1,0 +1,16 @@
+{
+  "name": "wad2020",
+  "version": "1.0.0",
+  "description": "Digital Contact-book with GeoCoding and Maps Implementation",
+  "main": "myExpressServer.js",
+  "scripts": {
+    "dev": "nodemon",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.1",
+    "nodemon": "^2.0.19"
+  }
+}

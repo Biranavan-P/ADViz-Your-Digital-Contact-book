@@ -110,41 +110,43 @@ let username = document.getElementById("usernameLabel");
 let password = document.getElementById("passwordLabel");
 
 // Events
-document.getElementById("loginBtn").onclick = function() {
+document.getElementById("loginBtn").onclick = async function () {
     let errorMessage = document.getElementById("loginErrorMessage");
     let error = "";
 
     let userValue = username.value;
     let passwordValue = password.value;
+    let success = await validateUser(userValue, passwordValue)
+    if (success !== undefined && success) {
+        loginForm.style.display = "none";
 
-    if(validateUser(userValue, passwordValue)) {
+        initMap();
+        document.getElementById("map_container").style.display = "grid";
+        document.getElementById("welcomeMessage").innerText = "Welcome, " + currentUser.getName() + ". Role: " + currentUser.getRole();
         changeTitle("Adviz | Home");
         loadContacts("my");
     }
     // Possible error cases
-    else if(!userValue && !passwordValue) {
+    else if (!userValue && !passwordValue) {
         username.style.borderColor = "white";
         password.style.borderColor = "white";
         error = "Please enter your login details."
         errorMessage.innerText = error;
         username.style.borderColor = "red";
         password.style.borderColor = "red";
-    }
-    else if(userValue && !passwordValue) {
+    } else if (userValue && !passwordValue) {
         username.style.borderColor = "white";
         password.style.borderColor = "white";
         error = "Password Field can't be empty!"
         errorMessage.innerText = error;
         password.style.borderColor = "red";
-    }
-    else if(!userValue && passwordValue) {
+    } else if (!userValue && passwordValue) {
         username.style.borderColor = "white";
         password.style.borderColor = "white";
         error = "Username Field can't be empty!"
         errorMessage.innerText = error;
         username.style.borderColor = "red";
-    }
-    else {
+    } else {
         username.style.borderColor = "white";
         password.style.borderColor = "white";
         error = "Wrong Login Details."
@@ -175,71 +177,71 @@ document.getElementById("addButton").onclick = function(event) {
     let phoneForm = document.getElementById("phone");
     let dobForm = document.getElementById("dob");
     let privateForm = document.querySelector('.privateCheckbox:checked')
-    
+
     let errorLabel = document.getElementById("addContactErrorLabel");
-    
+
     const requiredFields = [firstnameForm, lastnameForm, streetForm, zipcodeForm, cityForm];
 
     // Checks if all fields are filled out by the user
-   if(!checkInput(firstnameForm, lastnameForm, streetForm, zipcodeForm, cityForm)) {
-       // Returns true if checkbox was clicked, false if not
-       let checked = privateForm != null;
-       // Created new Entry
-       let newEntry = new ContactEntry(
-           firstnameForm.value,
-           lastnameForm.value,
-           streetForm.value,
-           zipcodeForm.value,
-           cityForm.value,
-           countryForm.value,
-           phoneForm.value,
-           dobForm.value,
-           checked
-       );
-       // Adds the new entry
-       addContact(newEntry);
+    if(!checkInput(firstnameForm, lastnameForm, streetForm, zipcodeForm, cityForm)) {
+        // Returns true if checkbox was clicked, false if not
+        let checked = privateForm != null;
+        // Created new Entry
+        let newEntry = new ContactEntry(
+            firstnameForm.value,
+            lastnameForm.value,
+            streetForm.value,
+            zipcodeForm.value,
+            cityForm.value,
+            countryForm.value,
+            phoneForm.value,
+            dobForm.value,
+            checked
+        );
+        // Adds the new entry
+        addContact(newEntry);
 
-       // Hides Form and displays the map again
-       document.getElementById("map_container").style.display = "grid";
-       document.getElementById("addContactForm").style.display = "none";
+        // Hides Form and displays the map again
+        document.getElementById("map_container").style.display = "grid";
+        document.getElementById("addContactForm").style.display = "none";
 
-       // Clears input
-       firstnameForm.value = "";
-       lastnameForm.value = "";
-       streetForm.value = "";
-       zipcodeForm.value = "";
-       cityForm.value = "";
-       countryForm.value = "";
-       phoneForm.value = "";
-       dobForm.value = "";
-       setCheckboxValue(privateForm, false);
-       // Resets Error Text
-       errorLabel.innerText = "";
-   }
-   else {
-       errorLabel.innerText = "Please fill out all required fields!";
-       requiredFields.forEach(element => {
-           element.style.borderColor = "red";
-       })
-   }
-    
+        // Clears input
+        firstnameForm.value = "";
+        lastnameForm.value = "";
+        streetForm.value = "";
+        zipcodeForm.value = "";
+        cityForm.value = "";
+        countryForm.value = "";
+        phoneForm.value = "";
+        dobForm.value = "";
+        setCheckboxValue(privateForm, false);
+        // Resets Error Text
+        errorLabel.innerText = "";
+    }
+    else {
+        errorLabel.innerText = "Please fill out all required fields!";
+        requiredFields.forEach(element => {
+            element.style.borderColor = "red";
+        })
+    }
+
 }
 
 /**
- * Checks if required fields are filled out 
+ * Checks if required fields are filled out
  * @param firstnameForm first name input
  * @param lastnameForm last name input
- * @param streetForm street input 
+ * @param streetForm street input
  * @param zipcodeForm zipcode input
  * @param cityForm city input
- * @returns {boolean} true if contains one or more empty fields 
+ * @returns {boolean} true if contains one or more empty fields
  */
 let checkInput = (firstnameForm, lastnameForm, streetForm, zipcodeForm, cityForm) => {
     let fields = [
-        firstnameForm.value, 
-        lastnameForm.value, 
-        streetForm.value, 
-        zipcodeForm.value, 
+        firstnameForm.value,
+        lastnameForm.value,
+        streetForm.value,
+        zipcodeForm.value,
         cityForm.value];
     return fields.includes("");
 }
@@ -280,21 +282,38 @@ document.getElementById("backButtonUpdate").onclick = function(event) {
 
 /**
  * Validates login data and initiates the contact list loading
- * @param user username
+ * @param name username
  * @param pass password
  * @returns {boolean} true if login was successful, false if not
  */
-let validateUser = (user, pass) => {
-    if(user === "admina" && pass === "password" || user === "normalo" && pass === "password") {
-        currentUser = user === "admina" ? admina : normalo;
-        loginForm.style.display = "none";
+let validateUser = async (user, pass) => {
 
-        initMap();
-        document.getElementById("map_container").style.display = "grid";
-        document.getElementById("welcomeMessage").innerText = "Welcome, " + currentUser.getName() + ". Role: " + currentUser.getRole();
-        return true;
+
+
+    let url = "http://localhost:3000/users"
+    let contact = {
+        "name" : user,
+        "password":pass
     }
-    return false;
+
+    let headers = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+    };
+
+
+        let res = await fetch(
+            url,
+            {
+                method: "post",
+                headers: headers,
+                body: JSON.stringify(contact)
+            },
+        )
+
+    //TODO save current user!
+
+    return res.ok;
 }
 
 /**

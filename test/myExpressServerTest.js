@@ -78,8 +78,11 @@ let contact2_normalo = {ID:3,name:"Piet", lastname:"Doe(N)", street:"Kaiserswert
 
 
 
-let  admina_contacts= [contact1_admina,contact2_admina,contact1_normalo,contact2_normalo,contact_n,contact_a]
-let  normalo_contacts= [contact1_admina,contact1_normalo,contact2_normalo,contact_n]
+let  admina_contacts_all= [contact1_admina,contact2_admina,contact1_normalo,contact2_normalo,contact_n,contact_a]
+let  normalo_contacts_all= [contact1_admina,contact1_normalo,contact2_normalo,contact_n]
+
+let  admina_contacts_my= [contact1_admina,contact2_admina,contact_a]
+let  normalo_contacts_my= [contact1_normalo,contact2_normalo,contact_n]
 
 
 
@@ -166,34 +169,68 @@ describe("add contact (post) ",()=> {
 
 
 describe("get contact (get) ",()=> {
-    it("get /Contacts, normalo",async ()=>{
+    it("get /Contacts, normalo all",async ()=>{
 
         const res = await request.get("contacts").send({
-            "current_user" :"normalo"
+            "current_user" :"normalo",
+            "mode" : "all"
+
         })
         expect(res.statusCode).to.equal(200)
 
 
 
-        expect(res.body).to.deep.equal(normalo_contacts)
+        expect(res.body).to.deep.equal(normalo_contacts_all)
 
 
     })
 
-    it("get /Contacts, normalo",async ()=>{
+    it("get /Contacts, admina all",async ()=>{
 
         const res = await request.get("contacts").send({
-            "current_user" :"admina"
+            "current_user" :"admina",
+            "mode" : "all"
+        })
+        expect(res.statusCode).to.equal(200)
+
+
+        expect(res.body).to.deep.equal(admina_contacts_all)
+
+
+    })
+
+
+
+    it("get /Contacts, normalo my",async ()=>{
+
+        const res = await request.get("contacts").send({
+            "current_user" :"normalo",
+            "mode" : "my"
+
         })
         expect(res.statusCode).to.equal(200)
 
 
 
-        expect(res.body).to.deep.equal(admina_contacts)
+        expect(res.body).to.deep.equal(normalo_contacts_my)
 
 
     })
 
+    it("get /Contacts, admina my",async ()=>{
+
+        const res = await request.get("contacts").send({
+            "current_user" :"admina",
+            "mode" : "my"
+        })
+        expect(res.statusCode).to.equal(200)
+
+
+
+        expect(res.body).to.deep.equal(admina_contacts_my)
+
+
+    })
     it("get /Contacts, unkown_user",async ()=>{
 
         const res = await request.get("contacts").send({
@@ -226,13 +263,14 @@ describe("update contact (put) ",()=> {
         await request.put("contacts/4").send(normalo_contact).expect(204)
 
         const res = await request.get("contacts").send({
-            "current_user" :"normalo"
+            "current_user" :"normalo",
+            "mode" : "all"
         })
         expect(res.statusCode).to.equal(200)
 
 
 
-        expect(res.body).to.deep.equal(normalo_contacts)
+        expect(res.body).to.deep.equal(normalo_contacts_all)
 
 
 
@@ -251,13 +289,14 @@ describe("update contact (put) ",()=> {
         await request.put("contacts/5").send(admina_contact).expect(204)
 
         const res = await request.get("contacts").send({
-            "current_user" :"admina"
+            "current_user" :"admina",
+            "mode" : "all"
         })
         expect(res.statusCode).to.equal(200)
 
 
 
-        expect(res.body).to.deep.equal(admina_contacts)
+        expect(res.body).to.deep.equal(admina_contacts_all)
 
 
 
@@ -298,7 +337,8 @@ describe("delete contact (delete)",()=> {
 
 
         const res = await request.get("contacts").send({
-            "current_user" :"normalo"
+            "current_user" :"normalo",
+            "mode" : "all"
         })
         expect(res.statusCode).to.equal(200)
 
@@ -316,7 +356,8 @@ describe("delete contact (delete)",()=> {
 
 
         const res = await request.get("contacts").send({
-            "current_user" :"admina"
+            "current_user" :"admina",
+            "mode" : "all"
         })
         expect(res.statusCode).to.equal(200)
 
@@ -325,7 +366,7 @@ describe("delete contact (delete)",()=> {
         expect(res.body).to.deep.equal([contact1_admina,contact2_admina,contact1_normalo,contact2_normalo])
     })
 
-    it("delete admina contact",async () => {
+    it("delete unkown contact",async () => {
 
 
         await request

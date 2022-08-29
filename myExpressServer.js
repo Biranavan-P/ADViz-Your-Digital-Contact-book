@@ -38,17 +38,22 @@ function addContactDB(contact){
 
 
 }
-function getContactDB(current_user){
+function getContactDB(current_user,mode){
     let owner =getUserDB(current_user)
     if (owner === undefined){
         return []
     }
-    else if ( owner.role === "admin"){
+    else if ( owner.role === "admin" && mode ==="all" ){
         return contacts
     }
-    else {
+    else if (owner.role === "normal" && mode ==="all") {
         return contacts.filter(X => X.owner === current_user || X.isPublic )
     }
+    else{
+        return contacts.filter(X => X.owner === current_user)
+
+    }
+
 }
 function updateContactDB(contact){
     let objIndex = contacts.findIndex((obj => obj.ID === contact.ID))
@@ -130,7 +135,7 @@ function addContact(req,res){
 }
 
 function getContact(req,res){
-    let contact_list = getContactDB(req.body.current_user)
+    let contact_list = getContactDB(req.body.current_user,req.body.mode)
     res.send(contact_list)
 }
 

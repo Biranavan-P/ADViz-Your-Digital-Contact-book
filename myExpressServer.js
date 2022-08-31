@@ -11,12 +11,22 @@ app.use(express.static("public"))
 let admina = {username: "admina", password: "password", role:"admin"};
 let normalo = {username: "normalo", password: "password", role:"normal"};
 
-let contact1_admina = { ID:0,name: "Unknown", lastname:"User(A)", street:"Wilhelminenhofstraße 75A", zipcode: "10318", city :"Berlin", country:"Germany", phone: 353637437, dateOfBirth: "1990-06-04", isPublic: true,owner : "admina"}
-let contact2_admina = {ID:1,name:"John", lastname:"Doe(A)", street:"Wilhelminenhofstraße 75A", zipcode:"12459",  city :"Berlin",  country:"Germany",phone: 6436377, dateOfBirth:"1990-04-07", isPublic:false ,owner : "admina"}
-let contact1_normalo = {ID:2,name:"Dennis",lastname: "Doe(N)",street: "Straße des 17. Juni 135", zipcode:"10623",  city :"Berlin",  country:"Germany",phone: 353637437,dateOfBirth: "1990-06-04", isPublic:true,owner : "normalo"}
-let contact2_normalo = {ID:3,name:"Piet", lastname:"Doe(N)", street:"Kaiserswerther Str. 16-18",zipcode: "14195 ",  city : "Berlin",  country:"Germany",phone: 88325652, dateOfBirth:"1990-06-04",isPublic:true,owner : "normalo"}
-
-
+let contact1_admina = { ID:0,name: "Unknown", lastname:"User(A)", street:"Wilhelminenhofstraße 75A", zipcode: "10318",
+    city :"Berlin", country:"Germany", phone: 353637437, dateOfBirth: "1990-06-04", isPublic: true,owner : "admina",
+    lat:52.49326,lng:13.52614
+}
+let contact2_admina = {ID:1,name:"John", lastname:"Doe(A)", street:"Wilhelminenhofstraße 75A", zipcode:"12459",
+    city :"Berlin",  country:"Germany",phone: 6436377, dateOfBirth:"1990-04-07", isPublic:false ,owner : "admina",
+    lat:52.4581,lng:13.52709
+}
+let contact1_normalo = {ID:2,name:"Dennis",lastname: "Doe(N)",street: "Straße des 17. Juni 135", zipcode:"10623",
+    city :"Berlin",  country:"Germany",phone: 353637437,dateOfBirth: "1990-06-04", isPublic:true,owner : "normalo",
+    lat:52.51274,lng:13.3269
+}
+let contact2_normalo = {ID:3,name:"Piet", lastname:"Doe(N)", street:"Takustraße 9",zipcode: "14195",
+    city : "Berlin",  country:"Germany",phone: 88325652, dateOfBirth:"1990-06-04",isPublic:true,owner : "normalo",
+    lat:52.45585,lng:13.29738
+}
 let  users = [admina,normalo]
 let  contacts= [contact1_admina,contact2_admina,contact1_normalo,contact2_normalo]
 
@@ -49,9 +59,12 @@ function getContactDB(current_user,mode){
     else if (owner.role === "normal" && mode ==="all") {
         return contacts.filter(X => X.owner === current_user || X.isPublic )
     }
-    else{
+    else if ( mode ==="my"){
         return contacts.filter(X => X.owner === current_user)
 
+    }
+    else{
+        return []
     }
 
 }
@@ -107,6 +120,9 @@ function addContact(req,res){
     let dob = req.body["Date of birth"]
     let visibility = req.body["Public Contact"]
     let owner= req.body["Owner"]
+    let lat =   req.body["lat"]
+    let lng =   req.body["lng"]
+
     if (!first_name  || !last_name  || !adress || !zip || !city|| !visibility || !owner){
         res.status(400).send("Bad Request")
         return
@@ -123,7 +139,9 @@ function addContact(req,res){
         phone: phone,
         dateOfBirth:dob ,
         isPublic: isPublic,
-        owner : owner
+        owner : owner,
+        lat: lat,
+        lng: lng
     }
 
     addContactDB(contact)
@@ -135,7 +153,8 @@ function addContact(req,res){
 }
 
 function getContact(req,res){
-    let contact_list = getContactDB(req.body.current_user,req.body.mode)
+    let contact_list = getContactDB(req.query.current_user,req.query.mode)
+
     res.send(contact_list)
 }
 
@@ -153,6 +172,8 @@ function update_contact(req,res){
     let dob = req.body["Date of birth"]
     let visibility = req.body["Public Contact"]
     let owner= req.body["Owner"]
+    let lat =   req.body["lat"]
+    let lng =   req.body["lng"]
     if (!first_name  || !last_name  || !adress || !zip || !city|| !visibility || !owner){
         res.status(400).send("Bad Request")
         return
@@ -170,7 +191,9 @@ function update_contact(req,res){
         phone: phone,
         dateOfBirth:dob ,
         isPublic: isPublic,
-        owner : owner
+        owner : owner,
+        lat: lat,
+        lng: lng
     }
     if (updateContactDB(contact)){
         res.sendStatus(204)

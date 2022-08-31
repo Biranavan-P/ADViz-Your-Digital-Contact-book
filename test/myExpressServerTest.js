@@ -15,7 +15,9 @@ let contact_n = {
     phone: 5448658,
     dateOfBirth:"1990-06-04",
     isPublic: false,
-    owner : "normalo"
+    owner : "normalo",
+    lat:52.485520,
+    lng:13.339060
 }
 
 
@@ -31,7 +33,9 @@ let normalo_contact = {
     "Phone":5448658,
     "Date of birth":"1990-06-04",
     "Public Contact":"false",
-    "Owner": "normalo"
+    "Owner": "normalo",
+    "lat":52.485520,
+    "lng":13.339060
 }
 
 let contact_a = {
@@ -45,7 +49,10 @@ let contact_a = {
     phone: 25252522,
     dateOfBirth:"1990-09-04" ,
     isPublic: false,
-    owner : "admina"
+    owner : "admina",
+    lat:52.517620,
+    lng:13.393760
+
 }
 
 let admina_contact = {
@@ -59,7 +66,9 @@ let admina_contact = {
     "Phone":25252522,
     "Date of birth":"1990-09-04",
     "Public Contact":"false",
-    "Owner": "admina"
+    "Owner": "admina",
+    "lat":52.517620,
+    "lng":13.393760
 }
 
 
@@ -68,11 +77,22 @@ let admina_contact = {
 
 
 
-let contact1_admina = { ID:0,name: "Unknown", lastname:"User(A)", street:"Wilhelminenhofstraße 75A", zipcode: "10318", city :"Berlin", country:"Germany", phone: 353637437, dateOfBirth: "1990-06-04", isPublic: true,owner : "admina"}
-let contact2_admina = {ID:1,name:"John", lastname:"Doe(A)", street:"Wilhelminenhofstraße 75A", zipcode:"12459",  city :"Berlin",  country:"Germany",phone: 6436377, dateOfBirth:"1990-04-07", isPublic:false ,owner : "admina"}
-let contact1_normalo = {ID:2,name:"Dennis",lastname: "Doe(N)",street: "Straße des 17. Juni 135", zipcode:"10623",  city :"Berlin",  country:"Germany",phone: 353637437,dateOfBirth: "1990-06-04", isPublic:true,owner : "normalo"}
-let contact2_normalo = {ID:3,name:"Piet", lastname:"Doe(N)", street:"Kaiserswerther Str. 16-18",zipcode: "14195 ",  city : "Berlin",  country:"Germany",phone: 88325652, dateOfBirth:"1990-06-04",isPublic:true,owner : "normalo"}
-
+let contact1_admina = { ID:0,name: "Unknown", lastname:"User(A)", street:"Wilhelminenhofstraße 75A", zipcode: "10318",
+    city :"Berlin", country:"Germany", phone: 353637437, dateOfBirth: "1990-06-04", isPublic: true,owner : "admina",
+    lat:52.49326,lng:13.52614
+}
+let contact2_admina = {ID:1,name:"John", lastname:"Doe(A)", street:"Wilhelminenhofstraße 75A", zipcode:"12459",
+    city :"Berlin",  country:"Germany",phone: 6436377, dateOfBirth:"1990-04-07", isPublic:false ,owner : "admina",
+    lat:52.4581,lng:13.52709
+}
+let contact1_normalo = {ID:2,name:"Dennis",lastname: "Doe(N)",street: "Straße des 17. Juni 135", zipcode:"10623",
+    city :"Berlin",  country:"Germany",phone: 353637437,dateOfBirth: "1990-06-04", isPublic:true,owner : "normalo",
+    lat:52.51274,lng:13.3269
+}
+let contact2_normalo = {ID:3,name:"Piet", lastname:"Doe(N)", street:"Takustraße 9",zipcode: "14195",
+    city : "Berlin",  country:"Germany",phone: 88325652, dateOfBirth:"1990-06-04",isPublic:true,owner : "normalo",
+    lat:52.45585,lng:13.29738
+}
 
 
 
@@ -171,7 +191,7 @@ describe("add contact (post) ",()=> {
 describe("get contact (get) ",()=> {
     it("get /Contacts, normalo all",async ()=>{
 
-        const res = await request.get("contacts").send({
+        const res = await request.get("contacts").query({
             "current_user" :"normalo",
             "mode" : "all"
 
@@ -187,7 +207,7 @@ describe("get contact (get) ",()=> {
 
     it("get /Contacts, admina all",async ()=>{
 
-        const res = await request.get("contacts").send({
+        const res = await request.get("contacts").query({
             "current_user" :"admina",
             "mode" : "all"
         })
@@ -203,11 +223,13 @@ describe("get contact (get) ",()=> {
 
     it("get /Contacts, normalo my",async ()=>{
 
-        const res = await request.get("contacts").send({
+        const res = await request.get("contacts").query({
             "current_user" :"normalo",
             "mode" : "my"
-
         })
+
+
+
         expect(res.statusCode).to.equal(200)
 
 
@@ -219,7 +241,7 @@ describe("get contact (get) ",()=> {
 
     it("get /Contacts, admina my",async ()=>{
 
-        const res = await request.get("contacts").send({
+        const res = await request.get("contacts").query({
             "current_user" :"admina",
             "mode" : "my"
         })
@@ -233,7 +255,7 @@ describe("get contact (get) ",()=> {
     })
     it("get /Contacts, unkown_user",async ()=>{
 
-        const res = await request.get("contacts").send({
+        const res = await request.get("contacts").query({
             "current_user" :"alex"
         })
         expect(res.statusCode).to.equal(200)
@@ -262,7 +284,7 @@ describe("update contact (put) ",()=> {
 
         await request.put("contacts/4").send(normalo_contact).expect(204)
 
-        const res = await request.get("contacts").send({
+        const res = await request.get("contacts").query({
             "current_user" :"normalo",
             "mode" : "all"
         })
@@ -288,7 +310,7 @@ describe("update contact (put) ",()=> {
 
         await request.put("contacts/5").send(admina_contact).expect(204)
 
-        const res = await request.get("contacts").send({
+        const res = await request.get("contacts").query({
             "current_user" :"admina",
             "mode" : "all"
         })
@@ -336,7 +358,7 @@ describe("delete contact (delete)",()=> {
             .expect(200);
 
 
-        const res = await request.get("contacts").send({
+        const res = await request.get("contacts").query({
             "current_user" :"normalo",
             "mode" : "all"
         })
@@ -355,7 +377,7 @@ describe("delete contact (delete)",()=> {
             .expect(200);
 
 
-        const res = await request.get("contacts").send({
+        const res = await request.get("contacts").query({
             "current_user" :"admina",
             "mode" : "all"
         })

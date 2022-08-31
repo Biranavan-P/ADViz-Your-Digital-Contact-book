@@ -1,8 +1,10 @@
 import {User} from "/data/user.js";
 import {ContactEntry} from "./data/contactEntry.js";
+
 let map;
 let marker;
 let markerList = [];
+let currentUser;
 const options = {
     method: 'GET',
     headers: {
@@ -10,7 +12,7 @@ const options = {
         'X-RapidAPI-Key': '6d4ee9038amshd48d6b7ff082733p15d30ajsnf3fbcf93f965'
     }
 };
-
+let res;
 // Inits the map screen
 let initMap = () => {
     const loader = new google.maps.plugins.loader.Loader({
@@ -52,17 +54,17 @@ let setMarkerOfUser = async (user)=> {
  * @param lng longitude
  */
 
-let addMarker = (user, lat, lng) => {
+let addMarker = (name, lat, lng) => {
 
     marker = new google.maps.Marker({
         position: {lat: lat, lng: lng},
         map: map,
-        label: user.getFullName()
+        label: name
     });
 
 
 
-    markerList.push([user,marker])
+    markerList.push([name,marker])
 
 
 }
@@ -84,25 +86,7 @@ window.onload = function() {
 
 }
 
-// Available User Logins (Hardcoded)
-let admina = new User("admina", "password", "admin");
-let normalo = new User("normalo", "password", "normal")
 
-let availableUsers = [admina, normalo];
-
-// Current User (overwritten after login)
-let currentUser = new User();
-// Contacts (Hardcoded)
-let contact1_admina = new ContactEntry("Unknown", "User(A)", "Treskowallee 8", "10318", "Berlin", "Germany", 353637437, "1990-06-04",  true);
-let contact2_admina = new ContactEntry("John", "Doe(A)", "Wilhelminenhofstraße 75A", "12459", "Berlin", "Germany", 6436377, "1990-04-07", false );
-let contact1_normalo = new ContactEntry("Dennis", "Doe(N)", "Straße des 17. Juni 135", "10623", "Berlin", "Germany", 353637437, "1990-06-04", true);
-let contact2_normalo = new ContactEntry("Piet", "Doe(N)", "Kaiserswerther Str. 16-18", "14195 ", "Berlin", "Germany", 88325652, "1990-06-04",true)
-
-// Adding contacts to their user
-admina.addContact(contact1_admina);
-admina.addContact(contact2_admina);
-normalo.addContact(contact1_normalo);
-normalo.addContact(contact2_normalo);
 
 // Forms
 let loginForm = document.getElementById("login");
@@ -116,8 +100,10 @@ document.getElementById("loginBtn").onclick = async function () {
 
     let userValue = username.value;
     let passwordValue = password.value;
-    let success = await validateUser(userValue, passwordValue)
-    if (success !== undefined && success) {
+    let validation = await validateUser(userValue, passwordValue);
+    let x = await get_contact("my");
+    console.log(x)
+    if (validation === true) {
         loginForm.style.display = "none";
 
         initMap();
@@ -256,13 +242,13 @@ function setCheckboxValue(checkbox,value) {
 }
 
 // Loading all contacts
-document.getElementById("showAllContactsBtn").onclick = function() {
-    loadContacts("all");
+document.getElementById("showAllContactsBtn").onclick = async function () {
+    await loadContacts("all");
 }
 
 // Loading contacts by user
-document.getElementById("showMyContactsBtn").onclick = function() {
-    loadContacts("my");
+document.getElementById("showMyContactsBtn").onclick = async function () {
+    await loadContacts("my");
 }
 
 document.getElementById("backButtonAdd").onclick = function(event) {
@@ -286,13 +272,13 @@ document.getElementById("backButtonUpdate").onclick = function(event) {
  * @param pass password
  * @returns {boolean} true if login was successful, false if not
  */
-let validateUser = async (user, pass) => {
+let validateUser = async (name, pass) => {
 
 
 
     let url = "http://localhost:3000/users"
     let contact = {
-        "name" : user,
+        "name" : name,
         "password":pass
     }
 
@@ -301,19 +287,26 @@ let validateUser = async (user, pass) => {
         'Content-Type': 'application/json'
     };
 
+    let response = await fetch(url, {   // fetch returns a promise
+        method: 'POST',
 
-        let res = await fetch(
-            url,
-            {
-                method: "post",
-                headers: headers,
-                body: JSON.stringify(contact)
-            },
-        )
+        headers: headers,
+        body: JSON.stringify(contact)  // body data type must match "Content-Type" header
+    });
 
-    //TODO save current user!
+    let data = await response.json();
+    if(response.ok) {
+        currentUser = new User(data.username, data.password, data.role);
+        return true;
+    }
+    else {
+        return false;
 
-    return res.ok;
+    }
+
+
+
+
 }
 
 /**
@@ -326,7 +319,7 @@ let addContact = async (contactEntry) => {
         currentUser.addContact(contactEntry);
     else if (res === false)
         alert("Der Kontakt: "+contactEntry.getFullName()+" konnte nicht hínzugefügt werden (Ungültige Adresse).")
-    loadContacts("my");
+    await loadContacts("my");
 }
 
 /**
@@ -336,7 +329,7 @@ let addContact = async (contactEntry) => {
 let updateList = (contactEntry) => {
     let newEntry = document.createElement("LI");
     newEntry.classList.add('contactsListItem');
-    newEntry.innerHTML = '<a href="#"><i class="fa-solid fa-address-card"></i> ' + contactEntry.getFullName() + '</a>'
+    newEntry.innerHTML = '<a href="#"><i class="fa-solid fa-address-card"></i> ' + contactEntry.name +" "+contactEntry.lastname  + '</a>'
     document.getElementById("cList").appendChild(newEntry);
 
 
@@ -359,48 +352,30 @@ let updateList = (contactEntry) => {
  * @param mode my -> shows the users contacts after login and after pressing "show my contacts"
  *             all -> shows all contacts for admina, shows all public contacts for normalo
  */
-let loadContacts = (mode) => {
+let loadContacts = async (mode) => {
     document.getElementById("cList").innerHTML = "";
-    switch(mode) {
+
+    switch (mode) {
         case "my":
-            let contactList = currentUser.getContacts()
-            for(let i = 0; i < contactList.length; i++) {
-                let user = contactList[i]
-                updateList(user);
-                setMarkerOfUser(user)
+            let contacts = await get_contact("my");
+        contacts.forEach(element => {
 
-            }
-            let intersect = markerList.filter(X=> !contactList.includes(X[0]) ).flatMap(X=> X[0])
-            if(intersect.length !== 0){
-                intersect.forEach(elem =>{
-                    removeMark(elem);
-                })
-            }
-            break;
+            updateList(element);
+            addMarker((element.name +" "+element.lastname),element.lat,element.lng);
+
+
+
+        });
+
+        break;
         case "all":
-            if(currentUser.getRole() === "admin") {
-                availableUsers.forEach(element => {
-                    element.getContacts().forEach(element => {
-                        updateList(element);
-                        setMarkerOfUser(element);
+            let contacts2 = await get_contact("all");
+            contacts2.forEach(element => {
 
-                    })
-                });
-            }
-            else{
-                availableUsers.forEach(element => {
-                    element.getContacts().forEach(element => {
-                        if(element.isPublic() || currentUser.getContacts().includes(element)){
-                            updateList(element);
-                            setMarkerOfUser(element);
-                        }
+                    updateList(element);
+                    addMarker((element.name +" "+element.lastname),element.lat,element.lng);
+            });
 
-
-                    })
-                });
-
-
-            }
             break;
     }
     changeTitle("Adviz | Home")
@@ -431,4 +406,29 @@ let changeTitle = (title) => {
     document.getElementById("title").innerText = title;
 }
 
+let get_lat_long =async (street, zip, city) => {
+    let url = "https://trueway-geocoding.p.rapidapi.com/Geocode?address=" + street + "%20" + zip + "%20" + city + "&language=de"
 
+    return await fetch(url, options)
+        .then(response => response.json())
+        .then(async response => {
+
+            return [response.results[0].location["lat"], response.results[0].location["lng"]]
+        }).catch(async err => {
+            return null
+        });
+
+}
+let get_contact = async (mode) => {
+    let url = ("http://localhost:3000/contacts?current_user="+currentUser.getName()+"&mode="+mode);
+
+    return await fetch(url, {
+        method: 'GET',
+    }).then(response => response.json()).then(async response => {
+        return (response)
+    }).catch(async err => {
+        return null
+    })
+
+
+}

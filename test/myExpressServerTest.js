@@ -90,7 +90,7 @@ let contact1_normalo = {ID:2,name:"Dennis",lastname: "Doe(N)",street: "Straße d
     lat:52.51274,lng:13.3269
 }
 let contact2_normalo = {ID:3,name:"Piet", lastname:"Doe(N)", street:"Takustraße 9",zipcode: "14195",
-    city : "Berlin",  country:"Germany",phone: 88325652, dateOfBirth:"1990-06-04",isPublic:true,owner : "normalo",
+    city : "Berlin",  country:"Germany",phone: 88325652, dateOfBirth:"1990-06-04",isPublic:false,owner : "normalo",
     lat:52.45585,lng:13.29738
 }
 

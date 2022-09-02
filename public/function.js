@@ -8,6 +8,7 @@ let marker_dict = {
 
 }
 let currentUser;
+let last_updated_id = -1;
 const options = {
     method: 'GET',
     headers: {
@@ -83,9 +84,11 @@ let removeMark = (user)=>{
 }
 window.onload = function() {
     // After load up -> Only Login screen is visible
+
     document.getElementById("map_container").style.display = "none";
     document.getElementById("addContactForm").style.display = "none";
     document.getElementById("updateContactForm").style.display = "none";
+    last_updated_id = -1;
 
 }
 
@@ -109,6 +112,7 @@ document.getElementById("loginBtn").onclick = async function () {
         loginForm.style.display = "none";
 
         initMap();
+        last_updated_id = -1;
         document.getElementById("map_container").style.display = "grid";
         document.getElementById("welcomeMessage").innerText = "Welcome, " + currentUser.getName() + ". Role: " + currentUser.getRole();
         changeTitle("Adviz | Home");
@@ -226,6 +230,85 @@ if (coordinates === undefined) {
     }
 
 }
+// Update Contact Event -> Reads user input and calls updateContactServer func
+document.getElementById("updateContactBtn").onclick = async function (event) {
+    event.preventDefault();
+
+    let firstnameForm = document.getElementById("firstNameU");
+    let lastnameForm = document.getElementById("lastNameU");
+    let streetForm = document.getElementById("streetAndNumberU");
+    let zipcodeForm = document.getElementById("zipcodeU");
+    let cityForm = document.getElementById("cityU");
+    let countryForm = document.getElementById("countryU");
+    let phoneForm = document.getElementById("phoneU");
+    let dobForm = document.getElementById("dobU");
+    let isPublic = document.getElementById("privateU")
+    let errorLabel = document.getElementById("UpdateContactErrorLabel");
+
+
+    const requiredFields = [firstnameForm, lastnameForm, streetForm, zipcodeForm, cityForm];
+
+    // Checks if all fields are filled out by the user
+    if (!checkInput(firstnameForm, lastnameForm, streetForm, zipcodeForm, cityForm)) {
+        // Returns true if checkbox was clicked, false if not
+        let coordinates = await get_lat_long(streetForm.value, zipcodeForm.value, cityForm.value);
+        if (coordinates === undefined) {
+            errorLabel.innerText = "Could not find this adress!"
+
+        }
+        // Created new Entry
+        let new_contact = {
+
+
+            "First Name": firstnameForm.value,
+            "Last Name": lastnameForm.value,
+            "Street & Number": streetForm.value,
+            "ZIP": zipcodeForm.value,
+            "City": cityForm.value,
+            "Country": countryForm.value,
+            "Phone": phoneForm.value,
+            "Date of birth": dobForm.value,
+            "Public Contact": isPublic.checked,
+            "Owner": currentUser.getName(),
+            "lat": coordinates.lat,
+            "lng": coordinates.lng
+
+
+        }
+
+        // Adds the new entry
+        await updateContact(new_contact);
+
+        // Hides Form and displays the map again
+        document.getElementById("map_container").style.display = "grid";
+        document.getElementById("updateContactForm").style.display = "none";
+
+        // Clears input
+        firstnameForm.value = "";
+        lastnameForm.value = "";
+        streetForm.value = "";
+        zipcodeForm.value = "";
+        cityForm.value = "";
+        countryForm.value = "";
+        phoneForm.value = "";
+        dobForm.value = "";
+        setCheckboxValue(isPublic, false);
+        // Resets Error Text
+
+        errorLabel.innerText = "";
+
+        requiredFields.forEach(element => {
+            element.style.borderColor = "black";
+        })
+
+    } else {
+        errorLabel.innerText = "Please fill out all required fields!";
+        requiredFields.forEach(element => {
+            element.style.borderColor = "red";
+        })
+    }
+
+}
 
 /**
  * Checks if required fields are filled out
@@ -280,8 +363,175 @@ document.getElementById("backButtonUpdate").onclick = function(event) {
     setCheckboxValue(document.querySelector('.privateCheckboxU:checked'), false);
 }
 
+
+let update_field_read_only = (mode) => {
+    if (mode){
+        document.getElementById("updateContactBtn").style.display = "none";
+        document.getElementById("deleteContactBtn").style.display = "none";
+        document.getElementById("firstNameU").disabled = true;
+        document.getElementById("lastNameU").disabled = true;
+        document.getElementById("streetAndNumberU").disabled = true;
+        document.getElementById("zipcodeU").disabled = true;
+        document.getElementById("cityU").disabled = true;
+        document.getElementById("countryU").disabled = true;
+        document.getElementById("phoneU").disabled = true;
+        document.getElementById("dobU").disabled = true;
+        document.getElementById("privateU").disabled = true;
+        document.getElementById("privateU").checked = true;
+        document.getElementById("UpdateContactErrorLabel").disabled = true;
+    }
+    else{
+        document.getElementById("updateContactBtn").style.display = "block";
+        document.getElementById("deleteContactBtn").style.display = "block";
+        document.getElementById("firstNameU").disabled = false;
+        document.getElementById("lastNameU").disabled = false;
+        document.getElementById("streetAndNumberU").disabled = false;
+        document.getElementById("zipcodeU").disabled = false;
+        document.getElementById("cityU").disabled = false;
+        document.getElementById("countryU").disabled = false;
+        document.getElementById("phoneU").disabled = false;
+        document.getElementById("dobU").disabled = false;
+        document.getElementById("privateU").disabled = false;
+
+        document.getElementById("UpdateContactErrorLabel").disabled = false;
+        document.getElementById("privateU").disabled = false;
+
+    }
+
+}
+
 /**
- * Validates login data and initiates the contact list loading
+ * Updates the HTML List based on the saved contacts data
+ * @param contactEntry new contact
+ */
+let updateList = async (contactEntry) => {
+    let newEntry = document.createElement("LI");
+    newEntry.classList.add('contactsListItem');
+    newEntry.innerHTML = '<a href="#"><i class="fa-solid fa-address-card"></i> ' + contactEntry.name + " " + contactEntry.lastname + '</a>'
+    await document.getElementById("cList").appendChild(newEntry);
+
+
+    // Adds onClickEvents for each item in the List
+    let listItems = document.querySelectorAll("#cList li");
+    listItems.forEach(function (item) {
+        item.onclick = async function () {
+            update_field_read_only(false);
+
+            let savedUser = currentUser.getContacts().find(o => o.name + " " + o.lastname === this.innerText);
+            if (!savedUser) {
+
+                let all_users = await getContact("all");
+                savedUser = all_users.find(o => o.name + " " + o.lastname === this.innerText);
+
+                if (currentUser.getRole() !== "admin") {
+                   update_field_read_only(true)
+                }
+
+
+            }
+            showUpdateContact(savedUser);
+        }
+    });
+}
+
+/**
+ * Loads contacts based on the current user and the pressed button
+ * @param mode my -> shows the users contacts after login and after pressing "show my contacts"
+ *             all -> shows all contacts for admina, shows all public contacts for normalo
+ */
+let loadContacts = async (mode) => {
+    document.getElementById("cList").innerHTML = "";
+
+    switch (mode) {
+        case "my":
+            let contacts = await getContact("my");
+            currentUser.setContacts(contacts);
+            let all_users = Object.keys(marker_dict);
+            if ( all_users.length !== 0){
+                for (let i = 0; i < all_users.length; i++) {
+                    if (!(all_users[i] in contacts)) {
+                        removeMark(all_users[i]);
+
+                    }
+
+                }
+
+            }
+        for (const element of contacts) {
+
+            await updateList(element);
+            await addMarker((element.name +" "+element.lastname),element.lat,element.lng);
+
+
+
+
+        }
+
+            break;
+        case "all":
+            let contacts2 = await getContact("all");
+            contacts2.forEach(element => {
+
+                    updateList(element);
+                    addMarker((element.name +" "+element.lastname),element.lat,element.lng);
+            });
+
+            break;
+    }
+    changeTitle("Adviz | Home")
+}
+
+let showUpdateContact = (ContactEntry) => {
+
+    changeTitle("Adviz | Update Contact")
+
+    document.getElementById("map_container").style.display = "none";
+    document.getElementById("updateContactForm").style.display = "grid";
+    // Showing data
+    document.getElementById("firstNameU").value = ContactEntry.name;
+    document.getElementById("lastNameU").value = ContactEntry.lastname;
+    document.getElementById("streetAndNumberU").value = ContactEntry.street;
+    document.getElementById("zipcodeU").value = ContactEntry.zipcode;
+    document.getElementById("cityU").value = ContactEntry.city;
+    document.getElementById("countryU").value = ContactEntry.country;
+    document.getElementById("phoneU").value = ContactEntry.phone;
+    document.getElementById("dobU").value = ContactEntry.dateOfBirth;
+    let box = document.getElementById("privateU")
+    if(ContactEntry.isPublic) {
+        setCheckboxValue(box, ContactEntry.isPublic);
+    }
+    last_updated_id = ContactEntry.ID;
+}
+
+let changeTitle = (title) => {
+    document.getElementById("title").innerText = title;
+}
+
+let get_lat_long =async (street, zip, city) => {
+    let url = "https://trueway-geocoding.p.rapidapi.com/Geocode?address=" + street + "%20" + zip + "%20" + city + "&language=de"
+
+    return await fetch(url, options)
+        .then(response => response.json())
+        .then(async response => {
+            if (  response.results[0].location_type === "approximate"){
+                return undefined;
+            }
+            else{
+                return {lat : response.results[0].location["lat"],lng: response.results[0].location["lng"]}
+
+            }
+        }).catch(async err => {
+            return undefined
+        });
+
+}
+
+//Server Functions
+
+
+/**
+ * Validates login data by server
+ * server:  /users (post)
  * @param name username
  * @param pass password
  * @returns {boolean} true if login was successful, false if not
@@ -324,7 +574,29 @@ let validateUser = async (name, pass) => {
 }
 
 /**
+ * Gets contacts
+ * server: /contacts (get)
+ * @param mode for getting contacts
+ * @returns {Promise<any>} Array or null
+ */
+let getContact = async (mode) => {
+    let url = ("http://localhost:3000/contacts?current_user="+currentUser.getName()+"&mode="+mode);
+
+    return await fetch(url, {
+        method: 'GET',
+    }).then(response => response.json()).then(async response => {
+        return (response)
+    }).catch(async err => {
+        return null
+    })
+
+
+}
+
+
+/**
  * Adds a contact to the users contacts and reloads the contact list
+ * /contacts (post)
  * @param contactEntry new contact
  */
 let addContact = async (contactEntry) => {
@@ -335,7 +607,7 @@ let addContact = async (contactEntry) => {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify(contactEntry)
-        });
+    });
     if ( response.ok) {
         await loadContacts("my");
     }
@@ -348,132 +620,34 @@ let addContact = async (contactEntry) => {
 }
 
 /**
- * Updates the HTML List based on the saved contacts data
+ * Updates a contact to the users contacts and reloads the contact list
+ * /contacts (put)
  * @param contactEntry new contact
  */
-let updateList = async (contactEntry) => {
-    let newEntry = document.createElement("LI");
-    newEntry.classList.add('contactsListItem');
-    newEntry.innerHTML = '<a href="#"><i class="fa-solid fa-address-card"></i> ' + contactEntry.name + " " + contactEntry.lastname + '</a>'
-    await document.getElementById("cList").appendChild(newEntry);
-
-
-    // Adds onClickEvents for each item in the List
-    let listItems = document.querySelectorAll("#cList li");
-    listItems.forEach(function (item) {
-        item.onclick = async function () {
-            let savedUser = currentUser.getContacts().find(o => o.name + " " + o.lastname === this.innerText);
-            if (!savedUser) {
-                if (currentUser.getRole() === "admin") {
-                    let all_users = await get_contact("all");
-                    savedUser = all_users.find(o => o.name + " " + o.lastname === this.innerText);
-                }
-                else{
-                    alert("Du hast keine Berechtigung diesen Kontakt anzupassen!");
-                    return;
-                }
-
-            }
-            updateContact(savedUser);
-        }
-    });
-}
-
-/**
- * Loads contacts based on the current user and the pressed button
- * @param mode my -> shows the users contacts after login and after pressing "show my contacts"
- *             all -> shows all contacts for admina, shows all public contacts for normalo
- */
-let loadContacts = async (mode) => {
-    document.getElementById("cList").innerHTML = "";
-
-    switch (mode) {
-        case "my":
-            let contacts = await get_contact("my");
-            currentUser.setContacts(contacts);
-            let all_users = Object.keys(marker_dict);
-            if ( all_users.length !== 0){
-                for (let i = 0; i < all_users.length; i++) {
-                    if (!(all_users[i] in contacts)) {
-                        removeMark(all_users[i]);
-
-                    }
-
-                }
-
-            }
-        for (const element of contacts) {
-
-            await updateList(element);
-            await addMarker((element.name +" "+element.lastname),element.lat,element.lng);
-
-
-
-
-        }
-
-            break;
-        case "all":
-            let contacts2 = await get_contact("all");
-            contacts2.forEach(element => {
-
-                    updateList(element);
-                    addMarker((element.name +" "+element.lastname),element.lat,element.lng);
-            });
-
-            break;
-    }
-    changeTitle("Adviz | Home")
-}
-
-let updateContact = (ContactEntry) => {
-
-    changeTitle("Adviz | Update Contact")
-
-    document.getElementById("map_container").style.display = "none";
-    document.getElementById("updateContactForm").style.display = "grid";
-    // Showing data
-    document.getElementById("firstNameU").value = ContactEntry.name;
-    document.getElementById("lastNameU").value = ContactEntry.lastname;
-    document.getElementById("streetAndNumberU").value = ContactEntry.street;
-    document.getElementById("zipcodeU").value = ContactEntry.zipcode;
-    document.getElementById("cityU").value = ContactEntry.city;
-    document.getElementById("countryU").value = ContactEntry.country;
-    document.getElementById("phoneU").value = ContactEntry.phone;
-    document.getElementById("dobU").value = ContactEntry.dateOfBirth;
-    let box = document.getElementById("privateU")
-    if(ContactEntry.isPublic) {
-        setCheckboxValue(box, ContactEntry.isPublic());
-    }
-}
-
-let changeTitle = (title) => {
-    document.getElementById("title").innerText = title;
-}
-
-let get_lat_long =async (street, zip, city) => {
-    let url = "https://trueway-geocoding.p.rapidapi.com/Geocode?address=" + street + "%20" + zip + "%20" + city + "&language=de"
-
-    return await fetch(url, options)
-        .then(response => response.json())
-        .then(async response => {
-
-            return {lat : response.results[0].location["lat"],lng: response.results[0].location["lng"]}
-        }).catch(async err => {
-            return undefined
+let updateContact  = async (contactEntry) =>{
+    if (last_updated_id!== -1){
+        let response  = await fetch("http://localhost:3000/contacts/"+last_updated_id, {
+            method: 'PUT',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(contactEntry)
         });
+        if ( response.ok) {
+            last_updated_id = -1;
 
-}
-let get_contact = async (mode) => {
-    let url = ("http://localhost:3000/contacts?current_user="+currentUser.getName()+"&mode="+mode);
+            await loadContacts("my");
+        }
+        else{
+            alert("Der Kontakt konnte nicht geändert werden. Versuche es erneut!");
+            last_updated_id = -1;
 
-    return await fetch(url, {
-        method: 'GET',
-    }).then(response => response.json()).then(async response => {
-        return (response)
-    }).catch(async err => {
-        return null
-    })
+            await loadContacts("my");
+
+        }
+    }
+
 
 
 }

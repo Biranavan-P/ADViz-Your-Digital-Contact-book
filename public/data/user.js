@@ -20,6 +20,9 @@ class User {
     addContact = (ContactEntry) => {
         this._contacts.push(ContactEntry);
     }
+    setContacts = (contacts) => {
+        this._contacts = contacts;
+    }
 
 }
 

@@ -15,7 +15,7 @@ const options = {
         'X-RapidAPI-Key': '6d4ee9038amshd48d6b7ff082733p15d30ajsnf3fbcf93f965'
     }
 };
-let res;
+
 // Inits the map screen
 let initMap = () => {
     const loader = new google.maps.plugins.loader.Loader({
@@ -112,7 +112,7 @@ document.getElementById("loginBtn").onclick = async function () {
         document.getElementById("map_container").style.display = "grid";
         document.getElementById("welcomeMessage").innerText = "Welcome, " + currentUser.getName() + ". Role: " + currentUser.getRole();
         changeTitle("Adviz | Home");
-        loadContacts("my");
+        await loadContacts("my");
     }
     // Possible error cases
     else if (!userValue && !passwordValue) {
@@ -153,7 +153,7 @@ document.getElementById("addContactBtn").onclick = function (event) {
 
 }
 // Add Contact Event -> Reads user input and calls addContact func
-document.getElementById("addButton").onclick = function(event) {
+document.getElementById("addButton").onclick = async function (event) {
     event.preventDefault();
 
     let firstnameForm = document.getElementById("firstName");
@@ -171,23 +171,36 @@ document.getElementById("addButton").onclick = function(event) {
     const requiredFields = [firstnameForm, lastnameForm, streetForm, zipcodeForm, cityForm];
 
     // Checks if all fields are filled out by the user
-    if(!checkInput(firstnameForm, lastnameForm, streetForm, zipcodeForm, cityForm)) {
+    if (!checkInput(firstnameForm, lastnameForm, streetForm, zipcodeForm, cityForm)) {
         // Returns true if checkbox was clicked, false if not
         let checked = privateForm != null;
+        let coordinates = await get_lat_long(streetForm.value, zipcodeForm.value, cityForm.value);
+if (coordinates === undefined) {
+    errorLabel.innerText = "Could not find this adress!"
+
+}
         // Created new Entry
-        let newEntry = new ContactEntry(
-            firstnameForm.value,
-            lastnameForm.value,
-            streetForm.value,
-            zipcodeForm.value,
-            cityForm.value,
-            countryForm.value,
-            phoneForm.value,
-            dobForm.value,
-            checked
-        );
+        let new_contact = {
+
+
+            "First Name": firstnameForm.value,
+            "Last Name": lastnameForm.value,
+            "Street & Number": streetForm.value,
+            "ZIP": zipcodeForm.value,
+            "City": cityForm.value,
+            "Country": countryForm.value,
+            "Phone": phoneForm.value,
+            "Date of birth": dobForm.value,
+            "Public Contact": checked,
+            "Owner": currentUser.getName(),
+            "lat": coordinates.lat,
+            "lng": coordinates.lng
+
+
+        }
+
         // Adds the new entry
-        addContact(newEntry);
+        await addContact(new_contact);
 
         // Hides Form and displays the map again
         document.getElementById("map_container").style.display = "grid";
@@ -205,8 +218,7 @@ document.getElementById("addButton").onclick = function(event) {
         setCheckboxValue(privateForm, false);
         // Resets Error Text
         errorLabel.innerText = "";
-    }
-    else {
+    } else {
         errorLabel.innerText = "Please fill out all required fields!";
         requiredFields.forEach(element => {
             element.style.borderColor = "red";
@@ -316,33 +328,51 @@ let validateUser = async (name, pass) => {
  * @param contactEntry new contact
  */
 let addContact = async (contactEntry) => {
-    let res = await setMarkerOfUser(contactEntry)
-    if (res === true)
-        currentUser.addContact(contactEntry);
-    else if (res === false)
-        alert("Der Kontakt: "+contactEntry.getFullName()+" konnte nicht hínzugefügt werden (Ungültige Adresse).")
-    await loadContacts("my");
+    let response  = await fetch("http://localhost:3000/contacts", {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(contactEntry)
+        });
+    if ( response.ok) {
+        await loadContacts("my");
+    }
+    else{
+        alert("Der Kontakt konnte nicht hinzugefügt werden. Versuche es erneut!");
+        await loadContacts("my");
+
+    }
+
 }
 
 /**
  * Updates the HTML List based on the saved contacts data
  * @param contactEntry new contact
  */
-let updateList = (contactEntry) => {
+let updateList = async (contactEntry) => {
     let newEntry = document.createElement("LI");
     newEntry.classList.add('contactsListItem');
-    newEntry.innerHTML = '<a href="#"><i class="fa-solid fa-address-card"></i> ' + contactEntry.name +" "+contactEntry.lastname  + '</a>'
-    document.getElementById("cList").appendChild(newEntry);
-
+    newEntry.innerHTML = '<a href="#"><i class="fa-solid fa-address-card"></i> ' + contactEntry.name + " " + contactEntry.lastname + '</a>'
+    await document.getElementById("cList").appendChild(newEntry);
 
 
     // Adds onClickEvents for each item in the List
-    let listItems  = document.querySelectorAll("c# li");
-    listItems.forEach(function(item) {
-        item.onclick = function() {
-            let savedUser = currentUser.getContacts().find(o => o.getFullName() === this.innerText);
-            if(!savedUser) {
-                savedUser = availableUsers.find(o => o.getName() !== currentUser.getName()).getContacts().find(o => o.getFullName() === this.innerText)
+    let listItems = document.querySelectorAll("#cList li");
+    listItems.forEach(function (item) {
+        item.onclick = async function () {
+            let savedUser = currentUser.getContacts().find(o => o.name + " " + o.lastname === this.innerText);
+            if (!savedUser) {
+                if (currentUser.getRole() === "admin") {
+                    let all_users = await get_contact("all");
+                    savedUser = all_users.find(o => o.name + " " + o.lastname === this.innerText);
+                }
+                else{
+                    alert("Du hast keine Berechtigung diesen Kontakt anzupassen!");
+                    return;
+                }
+
             }
             updateContact(savedUser);
         }
@@ -360,6 +390,7 @@ let loadContacts = async (mode) => {
     switch (mode) {
         case "my":
             let contacts = await get_contact("my");
+            currentUser.setContacts(contacts);
             let all_users = Object.keys(marker_dict);
             if ( all_users.length !== 0){
                 for (let i = 0; i < all_users.length; i++) {
@@ -402,16 +433,16 @@ let updateContact = (ContactEntry) => {
     document.getElementById("map_container").style.display = "none";
     document.getElementById("updateContactForm").style.display = "grid";
     // Showing data
-    document.getElementById("firstNameU").value = ContactEntry.getName();
-    document.getElementById("lastNameU").value = ContactEntry.getLastname();
-    document.getElementById("streetAndNumberU").value = ContactEntry.getStreet();
-    document.getElementById("zipcodeU").value = ContactEntry.getZipcode();
-    document.getElementById("cityU").value = ContactEntry.getCity();
-    document.getElementById("countryU").value = ContactEntry.getCountry();
-    document.getElementById("phoneU").value = ContactEntry.getPhone();
-    document.getElementById("dobU").value = ContactEntry.getDateOfBirth();
+    document.getElementById("firstNameU").value = ContactEntry.name;
+    document.getElementById("lastNameU").value = ContactEntry.lastname;
+    document.getElementById("streetAndNumberU").value = ContactEntry.street;
+    document.getElementById("zipcodeU").value = ContactEntry.zipcode;
+    document.getElementById("cityU").value = ContactEntry.city;
+    document.getElementById("countryU").value = ContactEntry.country;
+    document.getElementById("phoneU").value = ContactEntry.phone;
+    document.getElementById("dobU").value = ContactEntry.dateOfBirth;
     let box = document.getElementById("privateU")
-    if(ContactEntry.isPublic()) {
+    if(ContactEntry.isPublic) {
         setCheckboxValue(box, ContactEntry.isPublic());
     }
 }
@@ -427,9 +458,9 @@ let get_lat_long =async (street, zip, city) => {
         .then(response => response.json())
         .then(async response => {
 
-            return [response.results[0].location["lat"], response.results[0].location["lng"]]
+            return {lat : response.results[0].location["lat"],lng: response.results[0].location["lng"]}
         }).catch(async err => {
-            return null
+            return undefined
         });
 
 }

@@ -4,6 +4,9 @@ import {ContactEntry} from "./data/contactEntry.js";
 let map;
 let marker;
 let markerList = [];
+let marker_dict = {
+
+}
 let currentUser;
 const options = {
     method: 'GET',
@@ -55,26 +58,26 @@ let setMarkerOfUser = async (user)=> {
  */
 
 let addMarker = (name, lat, lng) => {
+    if (!(marker_dict.hasOwnProperty(name))) {
+        marker = new google.maps.Marker({
+            position: {lat: lat, lng: lng},
+            map: map,
+            label: name
+        });
+    }
 
-    marker = new google.maps.Marker({
-        position: {lat: lat, lng: lng},
-        map: map,
-        label: name
-    });
 
 
-
-    markerList.push([name,marker])
+    marker_dict[name] = marker;
 
 
 }
 let removeMark = (user)=>{
-    for (let i = 0; i < markerList.length ; i++) {
-        if(markerList[i][0] === user    ){
-            markerList[i][1].setMap(null);
-            markerList= markerList.filter(X=> X[0] !== user);
+    if (marker_dict[user] !== undefined){
+        marker_dict[user].setMap(null);
+        delete marker_dict[user];
 
-        }
+
 
     }
 }
@@ -101,8 +104,7 @@ document.getElementById("loginBtn").onclick = async function () {
     let userValue = username.value;
     let passwordValue = password.value;
     let validation = await validateUser(userValue, passwordValue);
-    let x = await get_contact("my");
-    console.log(x)
+
     if (validation === true) {
         loginForm.style.display = "none";
 
@@ -335,7 +337,7 @@ let updateList = (contactEntry) => {
 
 
     // Adds onClickEvents for each item in the List
-    let listItems  = document.querySelectorAll("ul li");
+    let listItems  = document.querySelectorAll("c# li");
     listItems.forEach(function(item) {
         item.onclick = function() {
             let savedUser = currentUser.getContacts().find(o => o.getFullName() === this.innerText);
@@ -358,16 +360,28 @@ let loadContacts = async (mode) => {
     switch (mode) {
         case "my":
             let contacts = await get_contact("my");
-        contacts.forEach(element => {
+            let all_users = Object.keys(marker_dict);
+            if ( all_users.length !== 0){
+                for (let i = 0; i < all_users.length; i++) {
+                    if (!(all_users[i] in contacts)) {
+                        removeMark(all_users[i]);
 
-            updateList(element);
-            addMarker((element.name +" "+element.lastname),element.lat,element.lng);
+                    }
+
+                }
+
+            }
+        for (const element of contacts) {
+
+            await updateList(element);
+            await addMarker((element.name +" "+element.lastname),element.lat,element.lng);
 
 
 
-        });
 
-        break;
+        }
+
+            break;
         case "all":
             let contacts2 = await get_contact("all");
             contacts2.forEach(element => {

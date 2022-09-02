@@ -174,11 +174,11 @@ function update_contact(req,res){
     let owner= req.body["Owner"]
     let lat =   req.body["lat"]
     let lng =   req.body["lng"]
-    if (!first_name  || !last_name  || !adress || !zip || !city|| !visibility || !owner){
+    if (!first_name  || !last_name  || !adress || !zip || !city|| !owner){
         res.status(400).send("Bad Request")
         return
     }
-    let isPublic = (visibility === 'true');
+    let isPublic = (visibility === 'true' || visibility === true);
 
     let contact = {
         ID:userId,

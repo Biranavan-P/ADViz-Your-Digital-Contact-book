@@ -127,7 +127,7 @@ function addContact(req,res){
         res.status(400).send("Bad Request")
         return
     }
-    let isPublic = (visibility === 'true');
+    let isPublic = (visibility === 'true' || visibility === true);
     let contact = {
         ID:userId,
         name: first_name,

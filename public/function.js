@@ -3,54 +3,32 @@ import {ContactEntry} from "./data/contactEntry.js";
 
 let map;
 let marker;
-let markerList = [];
+//TODO key = ID
 let marker_dict = {
 
 }
 let currentUser;
 let last_updated_id = -1;
-const options = {
-    method: 'GET',
-    headers: {
-        'X-RapidAPI-Host': 'trueway-geocoding.p.rapidapi.com',
-        'X-RapidAPI-Key': '6d4ee9038amshd48d6b7ff082733p15d30ajsnf3fbcf93f965'
-    }
-};
+
 
 // Inits the map screen
-let initMap = () => {
-    const loader = new google.maps.plugins.loader.Loader({
+let initMap = async () => {
+    const loader = await new google.maps.plugins.loader.Loader({
         apiKey: "AIzaSyBF0SvLTZkO3pThLmyHnkOrWLCBsWG3ikE",
         version: "weekly",
         libraries: ["drawing"]
     });
 
 
-    loader.load().then(() => {
-        map = new google.maps.Map(document.getElementById("mapFrame"), {
+    loader.load().then(async () => {
+        map = await new google.maps.Map(document.getElementById("mapFrame"), {
             center: {lat: 52.520008, lng: 13.404954},
             zoom: 15,
         });
     });
 }
 
-let setMarkerOfUser = async (user)=> {
-    let filter = markerList.filter(X => X[0] === user)
 
-    if (filter.length === 0) {
-
-        let url = "https://trueway-geocoding.p.rapidapi.com/Geocode?address=" + user.getStreet() + "%20" + user.getZipcode() + "%20" + user.getCity() + "&language=de"
-        return fetch(url, options)
-            .then(response => response.json())
-            .then(async response => {
-                await addMarker(user, response.results[0].location["lat"], response.results[0].location["lng"])
-                return true
-            }).catch(async err => {
-                return false
-            });
-
-    }
-}
 /**
  * Adds a new marker to the map
  * @param user Label shown on the marker
@@ -58,15 +36,14 @@ let setMarkerOfUser = async (user)=> {
  * @param lng longitude
  */
 
-let addMarker = (name, lat, lng) => {
+let addMarker = async (name, lat, lng) => {
     if (!(marker_dict.hasOwnProperty(name))) {
-        marker = new google.maps.Marker({
+        marker = await new google.maps.Marker({
             position: {lat: lat, lng: lng},
             map: map,
             label: name
         });
     }
-
 
 
     marker_dict[name] = marker;
@@ -82,6 +59,8 @@ let removeMark = (user)=>{
 
     }
 }
+
+//HTML changing functions
 window.onload = function() {
     // After load up -> Only Login screen is visible
 
@@ -94,12 +73,123 @@ window.onload = function() {
 
 
 
+/**
+ * Loads contacts based on the current user and the pressed button
+ * @param mode my -> shows the users contacts after login and after pressing "show my contacts"
+ *             all -> shows all contacts for admina, shows all public contacts for normalo
+ */
+let loadContacts = async (mode) => {
+    document.getElementById("cList").innerHTML = "";
+
+    switch (mode) {
+        case "my":
+            let contacts = await getContact("my");
+            currentUser.setContacts(contacts);
+            let all_users = Object.keys(marker_dict);
+            if ( all_users.length !== 0){
+                for (let i = 0; i < all_users.length; i++) {
+                    if (!(all_users[i] in contacts)) {
+                        removeMark(all_users[i]);
+
+                    }
+
+                }
+
+            }
+            for (const element of contacts) {
+
+                await updateList(element);
+                await addMarker((element.name +" "+element.lastname),element.lat,element.lng);
+
+
+
+
+            }
+
+            break;
+        case "all":
+            let contacts2 = await getContact("all");
+            contacts2.forEach(element => {
+
+                updateList(element);
+                addMarker((element.name +" "+element.lastname),element.lat,element.lng);
+            });
+
+            break;
+    }
+    changeTitle("Adviz | Home")
+}
+
+
+
+
+/**
+ * Updates the HTML List based on the saved contacts data
+ * @param contactEntry new contact
+ */
+let updateList = async (contactEntry) => {
+    let newEntry = document.createElement("LI");
+    newEntry.classList.add('contactsListItem');
+    newEntry.innerHTML = '<a href="#"><i class="fa-solid fa-address-card"></i> ' + contactEntry.name + " " + contactEntry.lastname + '</a>'
+    await document.getElementById("cList").appendChild(newEntry);
+
+
+    // Adds onClickEvents for each item in the List
+    let listItems = document.querySelectorAll("#cList li");
+    listItems.forEach(function (item) {
+        item.onclick = async function () {
+            update_field_read_only(false);
+
+            let savedUser = currentUser.getContacts().find(o => o.name + " " + o.lastname === this.innerText);
+            if (!savedUser) {
+
+                let all_users = await getContact("all");
+                savedUser = all_users.find(o => o.name + " " + o.lastname === this.innerText);
+
+                if (currentUser.getRole() !== "admin") {
+                    update_field_read_only(true)
+                }
+
+
+            }
+            showUpdateContact(savedUser);
+        }
+    });
+}
+
+
+
+
+let showUpdateContact = (ContactEntry) => {
+
+    changeTitle("Adviz | Update Contact")
+
+    document.getElementById("map_container").style.display = "none";
+    document.getElementById("updateContactForm").style.display = "grid";
+    // Showing data
+    document.getElementById("firstNameU").value = ContactEntry.name;
+    document.getElementById("lastNameU").value = ContactEntry.lastname;
+    document.getElementById("streetAndNumberU").value = ContactEntry.street;
+    document.getElementById("zipcodeU").value = ContactEntry.zipcode;
+    document.getElementById("cityU").value = ContactEntry.city;
+    document.getElementById("countryU").value = ContactEntry.country;
+    document.getElementById("phoneU").value = ContactEntry.phone;
+    document.getElementById("dobU").value = ContactEntry.dateOfBirth;
+    let box = document.getElementById("privateU")
+    if(ContactEntry.isPublic) {
+        setCheckboxValue(box, ContactEntry.isPublic);
+    }
+    last_updated_id = ContactEntry.ID;
+}
+
+
 // Forms
 let loginForm = document.getElementById("login");
 let username = document.getElementById("usernameLabel");
 let password = document.getElementById("passwordLabel");
 
-// Events
+// Buttons
+
 document.getElementById("loginBtn").onclick = async function () {
     let errorMessage = document.getElementById("loginErrorMessage");
     let error = "";
@@ -111,7 +201,7 @@ document.getElementById("loginBtn").onclick = async function () {
     if (validation === true) {
         loginForm.style.display = "none";
 
-        initMap();
+        await initMap();
         last_updated_id = -1;
         document.getElementById("map_container").style.display = "grid";
         document.getElementById("welcomeMessage").innerText = "Welcome, " + currentUser.getName() + ". Role: " + currentUser.getRole();
@@ -147,15 +237,7 @@ document.getElementById("loginBtn").onclick = async function () {
         password.style.borderColor = "red";
     }
 }
-// Add Contact Event -> Shows the Add Contact Form
-document.getElementById("addContactBtn").onclick = function (event) {
-    event.preventDefault();
-    document.getElementById("map_container").style.display = "none";
-    document.getElementById("addContactForm").style.display = "grid";
-    changeTitle("Adviz | Add Contact")
 
-
-}
 // Add Contact Event -> Reads user input and calls addContact func
 document.getElementById("addButton").onclick = async function (event) {
     event.preventDefault();
@@ -310,34 +392,6 @@ document.getElementById("updateContactBtn").onclick = async function (event) {
 
 }
 
-/**
- * Checks if required fields are filled out
- * @param firstnameForm first name input
- * @param lastnameForm last name input
- * @param streetForm street input
- * @param zipcodeForm zipcode input
- * @param cityForm city input
- * @returns {boolean} true if contains one or more empty fields
- */
-let checkInput = (firstnameForm, lastnameForm, streetForm, zipcodeForm, cityForm) => {
-    let fields = [
-        firstnameForm.value,
-        lastnameForm.value,
-        streetForm.value,
-        zipcodeForm.value,
-        cityForm.value];
-    return fields.includes("");
-}
-
-
-// Resets Checkbox value
-function setCheckboxValue(checkbox,value) {
-    if(checkbox === null) return false;
-
-    if (checkbox.checked!==value)
-        checkbox.click();
-}
-
 // Loading all contacts
 document.getElementById("showAllContactsBtn").onclick = async function () {
     await loadContacts("all");
@@ -362,8 +416,66 @@ document.getElementById("backButtonUpdate").onclick = function(event) {
 
     setCheckboxValue(document.querySelector('.privateCheckboxU:checked'), false);
 }
+// Add Contact Event -> Shows the Add Contact Form
+document.getElementById("addContactBtn").onclick = function (event) {
+    event.preventDefault();
+    document.getElementById("map_container").style.display = "none";
+    document.getElementById("addContactForm").style.display = "grid";
+    changeTitle("Adviz | Add Contact")
 
 
+}
+document.getElementById("deleteContactBtn").onclick = async function (event) {
+    event.preventDefault();
+    await deleteContact();
+    document.getElementById("map_container").style.display = "grid";
+    document.getElementById("updateContactForm").style.display = "none";
+    changeTitle("Adviz | Home")
+
+}
+
+
+
+
+
+//helper functions
+let changeTitle = (title) => {
+    document.getElementById("title").innerText = title;
+}
+
+let get_lat_long =async (street, zip, city) => {
+    const options = {
+        method: 'GET',
+        headers: {
+            'X-RapidAPI-Host': 'trueway-geocoding.p.rapidapi.com',
+            'X-RapidAPI-Key': '6d4ee9038amshd48d6b7ff082733p15d30ajsnf3fbcf93f965'
+        }
+    };
+    let url = "https://trueway-geocoding.p.rapidapi.com/Geocode?address=" + street + "%20" + zip + "%20" + city + "&language=de"
+
+    return await fetch(url, options)
+        .then(response => response.json())
+        .then(async response => {
+            if (  response.results[0].location_type === "approximate"){
+                return undefined;
+            }
+            else{
+                return {lat : response.results[0].location["lat"],lng: response.results[0].location["lng"]}
+
+            }
+        }).catch(async err => {
+            return undefined
+        });
+
+}
+
+// Resets Checkbox value
+function setCheckboxValue(checkbox,value) {
+    if(checkbox === null) return false;
+
+    if (checkbox.checked!==value)
+        checkbox.click();
+}
 let update_field_read_only = (mode) => {
     if (mode){
         document.getElementById("updateContactBtn").style.display = "none";
@@ -400,131 +512,29 @@ let update_field_read_only = (mode) => {
 
 }
 
-/**
- * Updates the HTML List based on the saved contacts data
- * @param contactEntry new contact
- */
-let updateList = async (contactEntry) => {
-    let newEntry = document.createElement("LI");
-    newEntry.classList.add('contactsListItem');
-    newEntry.innerHTML = '<a href="#"><i class="fa-solid fa-address-card"></i> ' + contactEntry.name + " " + contactEntry.lastname + '</a>'
-    await document.getElementById("cList").appendChild(newEntry);
 
-
-    // Adds onClickEvents for each item in the List
-    let listItems = document.querySelectorAll("#cList li");
-    listItems.forEach(function (item) {
-        item.onclick = async function () {
-            update_field_read_only(false);
-
-            let savedUser = currentUser.getContacts().find(o => o.name + " " + o.lastname === this.innerText);
-            if (!savedUser) {
-
-                let all_users = await getContact("all");
-                savedUser = all_users.find(o => o.name + " " + o.lastname === this.innerText);
-
-                if (currentUser.getRole() !== "admin") {
-                   update_field_read_only(true)
-                }
-
-
-            }
-            showUpdateContact(savedUser);
-        }
-    });
-}
 
 /**
- * Loads contacts based on the current user and the pressed button
- * @param mode my -> shows the users contacts after login and after pressing "show my contacts"
- *             all -> shows all contacts for admina, shows all public contacts for normalo
+ * Checks if required fields are filled out
+ * @param firstnameForm first name input
+ * @param lastnameForm last name input
+ * @param streetForm street input
+ * @param zipcodeForm zipcode input
+ * @param cityForm city input
+ * @returns {boolean} true if contains one or more empty fields
  */
-let loadContacts = async (mode) => {
-    document.getElementById("cList").innerHTML = "";
-
-    switch (mode) {
-        case "my":
-            let contacts = await getContact("my");
-            currentUser.setContacts(contacts);
-            let all_users = Object.keys(marker_dict);
-            if ( all_users.length !== 0){
-                for (let i = 0; i < all_users.length; i++) {
-                    if (!(all_users[i] in contacts)) {
-                        removeMark(all_users[i]);
-
-                    }
-
-                }
-
-            }
-        for (const element of contacts) {
-
-            await updateList(element);
-            await addMarker((element.name +" "+element.lastname),element.lat,element.lng);
-
-
-
-
-        }
-
-            break;
-        case "all":
-            let contacts2 = await getContact("all");
-            contacts2.forEach(element => {
-
-                    updateList(element);
-                    addMarker((element.name +" "+element.lastname),element.lat,element.lng);
-            });
-
-            break;
-    }
-    changeTitle("Adviz | Home")
+let checkInput = (firstnameForm, lastnameForm, streetForm, zipcodeForm, cityForm) => {
+    let fields = [
+        firstnameForm.value,
+        lastnameForm.value,
+        streetForm.value,
+        zipcodeForm.value,
+        cityForm.value];
+    return fields.includes("");
 }
 
-let showUpdateContact = (ContactEntry) => {
 
-    changeTitle("Adviz | Update Contact")
 
-    document.getElementById("map_container").style.display = "none";
-    document.getElementById("updateContactForm").style.display = "grid";
-    // Showing data
-    document.getElementById("firstNameU").value = ContactEntry.name;
-    document.getElementById("lastNameU").value = ContactEntry.lastname;
-    document.getElementById("streetAndNumberU").value = ContactEntry.street;
-    document.getElementById("zipcodeU").value = ContactEntry.zipcode;
-    document.getElementById("cityU").value = ContactEntry.city;
-    document.getElementById("countryU").value = ContactEntry.country;
-    document.getElementById("phoneU").value = ContactEntry.phone;
-    document.getElementById("dobU").value = ContactEntry.dateOfBirth;
-    let box = document.getElementById("privateU")
-    if(ContactEntry.isPublic) {
-        setCheckboxValue(box, ContactEntry.isPublic);
-    }
-    last_updated_id = ContactEntry.ID;
-}
-
-let changeTitle = (title) => {
-    document.getElementById("title").innerText = title;
-}
-
-let get_lat_long =async (street, zip, city) => {
-    let url = "https://trueway-geocoding.p.rapidapi.com/Geocode?address=" + street + "%20" + zip + "%20" + city + "&language=de"
-
-    return await fetch(url, options)
-        .then(response => response.json())
-        .then(async response => {
-            if (  response.results[0].location_type === "approximate"){
-                return undefined;
-            }
-            else{
-                return {lat : response.results[0].location["lat"],lng: response.results[0].location["lng"]}
-
-            }
-        }).catch(async err => {
-            return undefined
-        });
-
-}
 
 //Server Functions
 
@@ -576,7 +586,7 @@ let validateUser = async (name, pass) => {
 /**
  * Gets contacts
  * server: /contacts (get)
- * @param mode for getting contacts
+ * @param mode for getting contacts(my or all)
  * @returns {Promise<any>} Array or null
  */
 let getContact = async (mode) => {
@@ -596,7 +606,7 @@ let getContact = async (mode) => {
 
 /**
  * Adds a contact to the users contacts and reloads the contact list
- * /contacts (post)
+ * server:/contacts (post)
  * @param contactEntry new contact
  */
 let addContact = async (contactEntry) => {
@@ -621,8 +631,8 @@ let addContact = async (contactEntry) => {
 
 /**
  * Updates a contact to the users contacts and reloads the contact list
- * /contacts (put)
- * @param contactEntry new contact
+ * server /contacts (put)
+ * @param contactEntry updated contact
  */
 let updateContact  = async (contactEntry) =>{
     if (last_updated_id!== -1){
@@ -649,5 +659,35 @@ let updateContact  = async (contactEntry) =>{
     }
 
 
+
+}
+
+
+
+
+
+/**
+ * deletes a contact  and reloads the contact list
+ * server: /contacts (delete)
+ */
+let deleteContact = async () => {
+    if (last_updated_id!== -1){
+        let response  = await fetch("http://localhost:3000/contacts/"+last_updated_id, {
+            method: 'DELETE',
+
+        });
+        if ( response.ok) {
+            last_updated_id = -1;
+
+            await loadContacts("my");
+        }
+        else{
+            alert("Der Kontakt konnte nicht gelöscht werden. Versuche es erneut!");
+            last_updated_id = -1;
+
+            await loadContacts("my");
+
+        }
+    }
 
 }

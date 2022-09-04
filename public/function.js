@@ -193,12 +193,55 @@ let password = document.getElementById("passwordLabel");
 document.getElementById("loginBtn").onclick = async function () {
     let errorMessage = document.getElementById("loginErrorMessage");
     let error = "";
-
     let userValue = username.value;
     let passwordValue = password.value;
-    let validation = await validateUser(userValue, passwordValue);
+    if (!userValue && !passwordValue) {
+        username.style.borderColor = "white";
+        password.style.borderColor = "white";
+        error = "Please enter your login details."
+        errorMessage.innerText = error;
+        username.style.borderColor = "red";
+        password.style.borderColor = "red";
+        return;
+    } else if (userValue && !passwordValue) {
+        username.style.borderColor = "white";
+        password.style.borderColor = "white";
+        error = "Password Field can't be empty!"
+        errorMessage.innerText = error;
+        password.style.borderColor = "red";
+        return;
 
-    if (validation === true) {
+    } else if (!userValue && passwordValue) {
+        username.style.borderColor = "white";
+        password.style.borderColor = "white";
+        error = "Username Field can't be empty!"
+        errorMessage.innerText = error;
+        username.style.borderColor = "red";
+        return;
+
+    }
+
+
+
+    let url = "http://localhost:3000/users"
+    let contact = {
+        "name" : userValue,
+        "password":passwordValue
+    }
+
+    let headers = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+    };
+
+    let response = await fetch(url, {   // fetch returns a promise
+        method: 'POST',
+
+        headers: headers,
+        body: JSON.stringify(contact)  // body data type must match "Content-Type" header
+    });
+
+    if (response.ok) {
         loginForm.style.display = "none";
 
         await initMap();
@@ -208,27 +251,7 @@ document.getElementById("loginBtn").onclick = async function () {
         changeTitle("Adviz | Home");
         await loadContacts("my");
     }
-    // Possible error cases
-    else if (!userValue && !passwordValue) {
-        username.style.borderColor = "white";
-        password.style.borderColor = "white";
-        error = "Please enter your login details."
-        errorMessage.innerText = error;
-        username.style.borderColor = "red";
-        password.style.borderColor = "red";
-    } else if (userValue && !passwordValue) {
-        username.style.borderColor = "white";
-        password.style.borderColor = "white";
-        error = "Password Field can't be empty!"
-        errorMessage.innerText = error;
-        password.style.borderColor = "red";
-    } else if (!userValue && passwordValue) {
-        username.style.borderColor = "white";
-        password.style.borderColor = "white";
-        error = "Username Field can't be empty!"
-        errorMessage.innerText = error;
-        username.style.borderColor = "red";
-    } else {
+    else{
         username.style.borderColor = "white";
         password.style.borderColor = "white";
         error = "Wrong Login Details."
@@ -236,6 +259,8 @@ document.getElementById("loginBtn").onclick = async function () {
         username.style.borderColor = "red";
         password.style.borderColor = "red";
     }
+    // Possible error cases
+
 }
 
 // Add Contact Event -> Reads user input and calls addContact func

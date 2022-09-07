@@ -1,6 +1,23 @@
 const express = require("express")
 const app = express()
 const path = require("path")
+const uri = "mongodb://localhost:27017"
+
+const {MongoClient} = require('mongodb');
+const client = new MongoClient(uri);
+
+const dbName = "advizDB";
+async function connectDB() {
+    try {
+        // Connect to the MongoDB cluster
+        await client.connect();
+    } catch (e) {
+        console.error(e);
+        await client.close();
+    }
+
+}
+connectDB()
 
 let userId = 4
 app.use(express.json())
@@ -8,8 +25,7 @@ app.use(express.urlencoded({extended : false}))
 app.use(express.static("public"))
 
 
-let admina = {username: "admina", password: "password", role:"admin"};
-let normalo = {username: "normalo", password: "password", role:"normal"};
+
 
 let contact1_admina = { ID:0,name: "Unknown", lastname:"User(A)", street:"Wilhelminenhofstraße 75A", zipcode: "10318",
     city :"Berlin", country:"Germany", phone: 353637437, dateOfBirth: "1990-06-04", isPublic: true,owner : "admina",
@@ -27,18 +43,17 @@ let contact2_normalo = {ID:3,name:"Piet", lastname:"Doe(N)", street:"Takustraße
     city : "Berlin",  country:"Germany",phone: 88325652, dateOfBirth:"1990-06-04",isPublic:false,owner : "normalo",
     lat:52.45585,lng:13.29738
 }
-let  users = [admina,normalo]
 let  contacts= [contact1_admina,contact2_admina,contact1_normalo,contact2_normalo]
 
 //DB
-function getUserDB(name){
-    let obj = users.find(o => o.username === name);
+async function getUserDB(name) {
+    const result = await client.db(dbName).collection("users").findOne({username: name});
 
-    if (obj !== null) {
-        return obj
-    }
-    else{
-        return null
+    if (result) {
+        delete result['_id'];
+        return result;
+    } else {
+        return null;
     }
 
 }
@@ -48,22 +63,18 @@ function addContactDB(contact){
 
 
 }
-function getContactDB(current_user,mode){
-    let owner =getUserDB(current_user)
-    if (owner === undefined){
+async function getContactDB(current_user, mode) {
+    let owner = await getUserDB(current_user)
+    if (owner === null) {
         return []
-    }
-    else if ( owner.role === "admin" && mode ==="all" ){
+    } else if (owner.role === "admin" && mode === "all") {
         return contacts
-    }
-    else if (owner.role === "normal" && mode ==="all") {
-        return contacts.filter(X => X.owner === current_user || X.isPublic )
-    }
-    else if ( mode ==="my"){
+    } else if (owner.role === "normal" && mode === "all") {
+        return contacts.filter(X => X.owner === current_user || X.isPublic)
+    } else if (mode === "my") {
         return contacts.filter(X => X.owner === current_user)
 
-    }
-    else{
+    } else {
         return []
     }
 
@@ -95,15 +106,14 @@ function deleteContactDB(user_id){
 
 
 //Funct
-function authenticate (req,res){
+async function authenticate(req, res) {
     let name = req.body["name"]
     let password = req.body["password"]
 
-    let contact = getUserDB(name)
-    if(contact != null && contact.password === password){
+    let contact = await getUserDB(name)
+    if (contact != null && contact.password === password) {
         res.status(200).json(contact)
-    }
-    else{
+    } else {
         res.status(401).send("Unauthorized")
     }
 }
@@ -152,8 +162,8 @@ function addContact(req,res){
 
 }
 
-function getContact(req,res){
-    let contact_list = getContactDB(req.query.current_user,req.query.mode)
+async function getContact(req, res) {
+    let contact_list = await getContactDB(req.query.current_user, req.query.mode)
 
     res.send(contact_list)
 }
@@ -230,14 +240,14 @@ app.get('/', function(req, res) {
 })
 
 
-app.post("/users",authenticate)
+app.post("/users", authenticate)
 
 
-app.post("/contacts",addContact)
+app.post("/contacts", addContact)
 
-app.get("/contacts",getContact)
-app.put("/contacts/*",update_contact)
+app.get("/contacts", getContact)
+app.put("/contacts/*", update_contact)
 
-app.delete("/contacts/*",delete_contact)
+app.delete("/contacts/*", delete_contact)
 app.listen(3000)
 console.log("listening")

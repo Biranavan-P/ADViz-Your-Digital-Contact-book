@@ -1,5 +1,4 @@
 import {User} from "/data/user.js";
-import {ContactEntry} from "./data/contactEntry.js";
 
 let map;
 let marker;

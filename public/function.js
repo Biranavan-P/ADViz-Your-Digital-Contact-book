@@ -178,7 +178,7 @@ let showUpdateContact = (ContactEntry) => {
     if(ContactEntry.isPublic) {
         setCheckboxValue(box, ContactEntry.isPublic);
     }
-    last_updated_id = ContactEntry.ID;
+    last_updated_id = ContactEntry._id;
 }
 
 

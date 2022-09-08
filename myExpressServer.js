@@ -6,7 +6,7 @@ const uri = "mongodb://localhost:27017"
 const {MongoClient} = require('mongodb');
 const client = new MongoClient(uri);
 const dbName = "advizDB";
-
+const contacts = client.db('advizDB').collection('contacts');
 
 
 
@@ -37,23 +37,6 @@ async function getUserID(){
 
 }
 
-let contact1_admina = { ID:0,name: "Unknown", lastname:"User(A)", street:"Wilhelminenhofstraße 75A", zipcode: "10318",
-    city :"Berlin", country:"Germany", phone: 353637437, dateOfBirth: "1990-06-04", isPublic: true,owner : "admina",
-    lat:52.49326,lng:13.52614
-}
-let contact2_admina = {ID:1,name:"John", lastname:"Doe(A)", street:"Wilhelminenhofstraße 75A", zipcode:"12459",
-    city :"Berlin",  country:"Germany",phone: 6436377, dateOfBirth:"1990-04-07", isPublic:false ,owner : "admina",
-    lat:52.4581,lng:13.52709
-}
-let contact1_normalo = {ID:2,name:"Dennis",lastname: "Doe(N)",street: "Straße des 17. Juni 135", zipcode:"10623",
-    city :"Berlin",  country:"Germany",phone: 353637437,dateOfBirth: "1990-06-04", isPublic:true,owner : "normalo",
-    lat:52.51274,lng:13.3269
-}
-let contact2_normalo = {ID:3,name:"Piet", lastname:"Doe(N)", street:"Takustraße 9",zipcode: "14195",
-    city : "Berlin",  country:"Germany",phone: 88325652, dateOfBirth:"1990-06-04",isPublic:false,owner : "normalo",
-    lat:52.45585,lng:13.29738
-}
-let  contacts= [contact1_admina,contact2_admina,contact1_normalo,contact2_normalo]
 
 //DB
 async function getUserDB(name) {
@@ -69,7 +52,9 @@ async function getUserDB(name) {
 }
 
 function addContactDB(contact){
-    contacts.push(contact)
+    client.db(dbName).collection("contacts").insertOne(contact)
+
+
 
 
 }
@@ -78,39 +63,45 @@ async function getContactDB(current_user, mode) {
     if (owner === null) {
         return []
     } else if (owner.role === "admin" && mode === "all") {
-        return contacts
+        return await client.db(dbName).collection("contacts").find().toArray();
     } else if (owner.role === "normal" && mode === "all") {
-        return contacts.filter(X => X.owner === current_user || X.isPublic)
+        const filter = {
+            '$or': [
+                {
+                    'owner': owner.username
+                }, {
+                    'isPublic': true
+                }
+            ]
+        };
+        const cursor = await contacts.find(filter);
+        return await cursor.toArray();
     } else if (mode === "my") {
-        return contacts.filter(X => X.owner === current_user)
+        const filter = {
+            'owner': owner.username
+        };
+
+        const cursor = await contacts.find(filter);
+        return await cursor.toArray();
 
     } else {
         return []
     }
 
 }
-function updateContactDB(contact){
-    let objIndex = contacts.findIndex((obj => obj.ID === contact.ID))
-    if(objIndex !== -1){
-        contacts[objIndex] = contact
-        return true
-    }
-    else {
-        return false
-    }
+async function updateContactDB(contact) {
+    let res = await contacts.updateOne({ _id: contact._id },
+        { $set:  contact },
+        { upsert: false }
+    );
+
+    return  (await res.matchedCount === 1 );
 
 
 }
-function deleteContactDB(user_id){
-    let objIndex = contacts.findIndex((obj => obj.ID === user_id))
-    if(objIndex !== -1){
-        contacts.splice(objIndex,1)
-        return true
-    }
-    else {
-        return false
-    }
-
+async function deleteContactDB(user_id) {
+    let res = await contacts.deleteOne({"_id": user_id});
+    return await res.deletedCount === 1;
 }
 
 
@@ -150,7 +141,7 @@ async function addContact(req, res) {
     let isPublic = (visibility === 'true' || visibility === true);
     let id = await getUserID()
     let contact = {
-        ID: id,
+        _id: id,
         name: first_name,
         lastname: last_name,
         street: adress,
@@ -178,9 +169,9 @@ async function getContact(req, res) {
     res.send(contact_list)
 }
 
-function update_contact(req,res){
+async function update_contact(req, res) {
 
-    let userId = req.url.toString().replace("/contacts/","")
+    let userId = req.url.toString().replace("/contacts/", "")
     userId = parseInt(userId)
     let first_name = req.body["First Name"]
     let last_name = req.body["Last Name"]
@@ -191,35 +182,34 @@ function update_contact(req,res){
     let phone = req.body["Phone"]
     let dob = req.body["Date of birth"]
     let visibility = req.body["Public Contact"]
-    let owner= req.body["Owner"]
-    let lat =   req.body["lat"]
-    let lng =   req.body["lng"]
-    if (!first_name  || !last_name  || !adress || !zip || !city|| !owner){
+    let owner = req.body["Owner"]
+    let lat = req.body["lat"]
+    let lng = req.body["lng"]
+    if (!first_name || !last_name || !adress || !zip || !city || !owner) {
         res.status(400).send("Bad Request")
         return
     }
     let isPublic = (visibility === 'true' || visibility === true);
 
     let contact = {
-        ID:userId,
+        _id: userId,
         name: first_name,
-        lastname:last_name,
-        street:adress,
+        lastname: last_name,
+        street: adress,
         zipcode: zip,
-        city :city,
-        country:country,
+        city: city,
+        country: country,
         phone: phone,
-        dateOfBirth:dob ,
+        dateOfBirth: dob,
         isPublic: isPublic,
-        owner : owner,
+        owner: owner,
         lat: lat,
         lng: lng
     }
-    if (updateContactDB(contact)){
+    if (await updateContactDB(contact)) {
         res.sendStatus(204)
 
-    }
-    else{
+    } else {
         res.sendStatus(400)
 
     }
@@ -227,14 +217,13 @@ function update_contact(req,res){
 }
 
 
-function delete_contact(req,res) {
-    let userId = req.url.toString().replace("/contacts/","")
+async function delete_contact(req, res) {
+    let userId = req.url.toString().replace("/contacts/", "")
     userId = parseInt(userId)
-    if(deleteContactDB(userId)){
+    if (await deleteContactDB(userId)) {
         res.sendStatus(200)
 
-    }
-    else{
+    } else {
         res.sendStatus(400)
 
     }

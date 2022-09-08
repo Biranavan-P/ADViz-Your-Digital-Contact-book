@@ -156,7 +156,7 @@ async function addContact(req, res) {
         lng: lng
     }
 
-    addContactDB(contact)
+    await addContactDB(contact)
     res.set("Location", ("/contacts/") + id.toString())
     res.status(201).send()
 

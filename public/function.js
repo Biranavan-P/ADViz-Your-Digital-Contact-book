@@ -88,20 +88,17 @@ let loadContacts = async (mode) => {
             if ( all_users.length !== 0){
                 for (let i = 0; i < all_users.length; i++) {
                     if (!(all_users[i] in contacts)) {
-                        removeMark(all_users[i]);
+                        await removeMark(all_users[i]);
 
                     }
 
                 }
 
             }
-            for (const element of contacts) {
-
+            for (let i = 0; i <contacts.length ; i++) {
+               let element = contacts[i];
                 await updateList(element);
                 await addMarker((element.name +" "+element.lastname),element.lat,element.lng);
-
-
-
 
             }
 
@@ -248,9 +245,10 @@ document.getElementById("loginBtn").onclick = async function () {
 
         await initMap();
         last_updated_id = -1;
-        document.getElementById("map_container").style.display = "grid";
-        document.getElementById("welcomeMessage").innerText = "Welcome, " + currentUser.getName() + ". Role: " + currentUser.getRole();
-        changeTitle("Adviz | Home");
+         document.getElementById("map_container").style.display = "grid";
+         document.getElementById("welcomeMessage").innerText = "Welcome, " + currentUser.getName() + ". Role: " + currentUser.getRole();
+        await changeTitle("Adviz | Home");
+        await loadContacts("all");
         await loadContacts("my");
     }
     else{
@@ -645,14 +643,12 @@ let addContact = async (contactEntry) => {
         },
         body: JSON.stringify(contactEntry)
     });
-    if ( response.ok) {
-        await loadContacts("my");
-    }
-    else{
+    if ( ! await response.ok) {
         alert("Der Kontakt konnte nicht hinzugefügt werden. Versuche es erneut!");
-        await loadContacts("my");
 
     }
+    await loadContacts("my");
+
 
 }
 

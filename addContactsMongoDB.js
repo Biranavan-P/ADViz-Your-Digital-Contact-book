@@ -14,15 +14,14 @@ async function connectDB() {
     }
 
 }
-connectDB()
-/*
-users = client.db(dbName).collection("users");
-let contact = users.find({username:"admina"}).toArray(function(err, result) {
-    if (err) throw err;
-    return result;
+async function doesCollectionExistInDb() {
+    const collections = await client.db(dbName).collections();
+    return collections.some(
+        (collection) => collection.collectionName === "contacts"
+    );
+}
 
-});
- */
+
 
 let contact1_admina = { _id:0,name: "Unknown", lastname:"User(A)", street:"Wilhelminenhofstraße 75A", zipcode: "10318",
     city :"Berlin", country:"Germany", phone: 353637437, dateOfBirth: "1990-06-04", isPublic: true,owner : "admina",
@@ -44,6 +43,11 @@ let  contacts= [contact1_admina,contact2_admina,contact1_normalo,contact2_normal
 
 async function main (){
     try {
+        await connectDB()
+
+         if (await doesCollectionExistInDb()){
+             client.db(dbName).collection("contacts").drop();
+         }
 
         await client.db(dbName).collection("contacts").insertMany(contacts );
         console.log("Added contacts to DB!")

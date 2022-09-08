@@ -23,7 +23,7 @@ async function doesCollectionExistInDb() {
 
 
 
-let contact1_admina = { _id:0,name: "Unknown", lastname:"User(A)", street:"Wilhelminenhofstraße 75A", zipcode: "10318",
+let contact1_admina = { _id:0,name: "Unknown", lastname:"User(A)", street:"Treskowallee  8", zipcode: "10318",
     city :"Berlin", country:"Germany", phone: 353637437, dateOfBirth: "1990-06-04", isPublic: true,owner : "admina",
     lat:52.49326,lng:13.52614
 }

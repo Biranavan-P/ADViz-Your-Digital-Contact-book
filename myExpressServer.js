@@ -5,27 +5,37 @@ const uri = "mongodb://localhost:27017"
 
 const {MongoClient} = require('mongodb');
 const client = new MongoClient(uri);
-
 const dbName = "advizDB";
+
+
+
+
 async function connectDB() {
     try {
-        // Connect to the MongoDB cluster
+        console.log("connecting to MongoDB");
         await client.connect();
+        console.log("connected to Database!");
+
     } catch (e) {
         console.error(e);
         await client.close();
     }
 
 }
-connectDB()
 
-let userId = 4
+
+
 app.use(express.json())
 app.use(express.urlencoded({extended : false}))
 app.use(express.static("public"))
 
 
+async function getUserID(){
+    let next_id = await  client.db(dbName).collection("contacts").find().sort({_id:-1}).limit(1).toArray()
+    next_id = await next_id[0]._id
+    return next_id+1
 
+}
 
 let contact1_admina = { ID:0,name: "Unknown", lastname:"User(A)", street:"Wilhelminenhofstraße 75A", zipcode: "10318",
     city :"Berlin", country:"Germany", phone: 353637437, dateOfBirth: "1990-06-04", isPublic: true,owner : "admina",
@@ -119,7 +129,7 @@ async function authenticate(req, res) {
 }
 
 
-function addContact(req,res){
+async function addContact(req, res) {
     let first_name = req.body["First Name"]
     let last_name = req.body["Last Name"]
     let adress = req.body["Street & Number"]
@@ -129,36 +139,36 @@ function addContact(req,res){
     let phone = req.body["Phone"]
     let dob = req.body["Date of birth"]
     let visibility = req.body["Public Contact"]
-    let owner= req.body["Owner"]
-    let lat =   req.body["lat"]
-    let lng =   req.body["lng"]
+    let owner = req.body["Owner"]
+    let lat = req.body["lat"]
+    let lng = req.body["lng"]
 
-    if (!first_name  || !last_name  || !adress || !zip || !city|| !visibility || !owner){
+    if (!first_name || !last_name || !adress || !zip || !city || !visibility || !owner) {
         res.status(400).send("Bad Request")
         return
     }
     let isPublic = (visibility === 'true' || visibility === true);
+    let id = await getUserID()
     let contact = {
-        ID:userId,
+        ID: id,
         name: first_name,
-        lastname:last_name,
-        street:adress,
+        lastname: last_name,
+        street: adress,
         zipcode: zip,
-        city :city,
-        country:country,
+        city: city,
+        country: country,
         phone: phone,
-        dateOfBirth:dob ,
+        dateOfBirth: dob,
         isPublic: isPublic,
-        owner : owner,
+        owner: owner,
         lat: lat,
         lng: lng
     }
 
     addContactDB(contact)
-    res.set("Location",("/contacts/")+userId.toString())
+    res.set("Location", ("/contacts/") + id.toString())
     res.status(201).send()
-    userId++
-    
+
 
 }
 
@@ -234,20 +244,24 @@ function delete_contact(req,res) {
 
 //HTTP Requests
 
-
-app.get('/', function(req, res) {
-    res.sendFile(path.join(__dirname)+"/index.html")
-})
-
-
-app.post("/users", authenticate)
+async function main (){
+    await connectDB()
+    app.get('/', function(req, res) {
+        res.sendFile(path.join(__dirname)+"/index.html")
+    })
 
 
-app.post("/contacts", addContact)
+    app.post("/users", authenticate)
 
-app.get("/contacts", getContact)
-app.put("/contacts/*", update_contact)
 
-app.delete("/contacts/*", delete_contact)
-app.listen(3000)
-console.log("listening")
+    app.post("/contacts", addContact)
+
+    app.get("/contacts", getContact)
+    app.put("/contacts/*", update_contact)
+
+    app.delete("/contacts/*", delete_contact)
+    app.listen(3000)
+    console.log("listening to Port 3000")
+}
+
+main()

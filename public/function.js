@@ -2,7 +2,6 @@ import {User} from "/data/user.js";
 
 let map;
 let marker;
-//TODO key = ID
 let marker_dict = {
 
 }
@@ -30,13 +29,15 @@ let initMap = async () => {
 
 /**
  * Adds a new marker to the map
- * @param user Label shown on the marker
+ * @param id of contact
+ * @param name of contact
  * @param lat latitude
  * @param lng longitude
  */
 
-let addMarker = async (name, lat, lng) => {
-    if (!(marker_dict.hasOwnProperty(name))) {
+
+let addMarker = async (id,name, lat, lng) => {
+    if (!(marker_dict.hasOwnProperty(id))) {
         marker = await new google.maps.Marker({
             position: {lat: lat, lng: lng},
             map: map,
@@ -45,14 +46,19 @@ let addMarker = async (name, lat, lng) => {
     }
 
 
-    marker_dict[name] = marker;
+    marker_dict[id] = marker;
 
 
 }
-let removeMark = (user)=>{
-    if (marker_dict[user] !== undefined){
-        marker_dict[user].setMap(null);
-        delete marker_dict[user];
+/**
+ * removes a  marker from the map
+ * @param id of contact
+
+ */
+let removeMark = (id)=>{
+    if (marker_dict[id] !== undefined){
+        marker_dict[id].setMap(null);
+        delete marker_dict[id];
 
 
 
@@ -87,10 +93,8 @@ let loadContacts = async (mode) => {
             let all_users = Object.keys(marker_dict);
             if ( all_users.length !== 0){
                 for (let i = 0; i < all_users.length; i++) {
-                    if (!(all_users[i] in contacts)) {
-                        await removeMark(all_users[i]);
-
-                    }
+                    let id  = all_users[i]
+                    removeMark(id)
 
                 }
 
@@ -98,17 +102,26 @@ let loadContacts = async (mode) => {
             for (let i = 0; i <contacts.length ; i++) {
                let element = contacts[i];
                 await updateList(element);
-                await addMarker((element.name +" "+element.lastname),element.lat,element.lng);
+                await addMarker(element._id,(element.name +" "+element.lastname),element.lat,element.lng);
 
             }
 
             break;
         case "all":
             let contacts2 = await getContact("all");
+            let all_users2 = Object.keys(marker_dict);
+            if ( all_users2.length !== 0){
+                for (let i = 0; i < all_users2.length; i++) {
+                    let id  = all_users2[i]
+                    removeMark(id)
+
+                }
+
+            }
             contacts2.forEach(element => {
 
                 updateList(element);
-                addMarker((element.name +" "+element.lastname),element.lat,element.lng);
+                addMarker(element._id,(element.name +" "+element.lastname),element.lat,element.lng);
             });
 
             break;
@@ -311,11 +324,27 @@ if (coordinates === undefined) {
         }
 
         // Adds the new entry
-        await addContact(new_contact);
+        let response  = await fetch("http://localhost:3000/contacts", {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(new_contact)
+        });
+       let  success = await response.ok;
+
+
 
         // Hides Form and displays the map again
         document.getElementById("map_container").style.display = "grid";
         document.getElementById("addContactForm").style.display = "none";
+        if (!success){
+            alert("Kontakt konnte nicht hinzugefügt werden!")
+
+        }
+        loadContacts("my")
+
 
         // Clears input
         firstnameForm.value = "";
@@ -488,7 +517,7 @@ let get_lat_long =async (street, zip, city) => {
                 return {lat : response.results[0].location["lat"],lng: response.results[0].location["lng"]}
 
             }
-        }).catch(async err => {
+        }).catch(async () => {
             return undefined
         });
 
@@ -564,49 +593,7 @@ let checkInput = (firstnameForm, lastnameForm, streetForm, zipcodeForm, cityForm
 //Server Functions
 
 
-/**
- * Validates login data by server
- * server:  /users (post)
- * @param name username
- * @param pass password
- * @returns {boolean} true if login was successful, false if not
- */
-let validateUser = async (name, pass) => {
 
-
-
-    let url = "http://localhost:3000/users"
-    let contact = {
-        "name" : name,
-        "password":pass
-    }
-
-    let headers = {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-    };
-
-    let response = await fetch(url, {   // fetch returns a promise
-        method: 'POST',
-
-        headers: headers,
-        body: JSON.stringify(contact)  // body data type must match "Content-Type" header
-    });
-
-    let data = await response.json();
-    if(response.ok) {
-        currentUser = new User(data.username, data.password, data.role);
-        return true;
-    }
-    else {
-        return false;
-
-    }
-
-
-
-
-}
 
 /**
  * Gets contacts
@@ -621,7 +608,7 @@ let getContact = async (mode) => {
         method: 'GET',
     }).then(response => response.json()).then(async response => {
         return (response)
-    }).catch(async err => {
+    }).catch(async () => {
         return null
     })
 
@@ -629,28 +616,6 @@ let getContact = async (mode) => {
 }
 
 
-/**
- * Adds a contact to the users contacts and reloads the contact list
- * server:/contacts (post)
- * @param contactEntry new contact
- */
-let addContact = async (contactEntry) => {
-    let response  = await fetch("http://localhost:3000/contacts", {
-        method: 'POST',
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(contactEntry)
-    });
-    if ( ! await response.ok) {
-        alert("Der Kontakt konnte nicht hinzugefügt werden. Versuche es erneut!");
-
-    }
-    await loadContacts("my");
-
-
-}
 
 /**
  * Updates a contact to the users contacts and reloads the contact list

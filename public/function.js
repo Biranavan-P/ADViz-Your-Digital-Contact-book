@@ -242,6 +242,9 @@ document.getElementById("loginBtn").onclick = async function () {
 
     if (response.ok) {
         loginForm.style.display = "none";
+        let data = await response.json();
+
+        currentUser = new User(data.username, data.password, data.role);
 
         await initMap();
         last_updated_id = -1;

@@ -250,7 +250,7 @@ async function main (){
 
     app.delete("/contacts/*", delete_contact)
     app.listen(3000)
-    console.log("listening to Port 3000")
+    console.log("listening on Port 3000")
 }
 
 main()

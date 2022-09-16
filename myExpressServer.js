@@ -19,6 +19,7 @@ async function connectDB() {
     } catch (e) {
         console.error(e);
         await client.close();
+        process.exit(-1);
     }
 
 }

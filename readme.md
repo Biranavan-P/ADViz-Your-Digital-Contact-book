@@ -27,6 +27,7 @@ npm install express mongodb
 Please also install [mongosh](https://www.mongodb.com/docs/mongodb-shell/install/#std-label-mdb-shell-install)
 This is necessary to add the data to the database.
 ## How to run the project
+Disclaimer: If one of the following MongoDB commands does not work, ensure that the command is stored in the environment variable
 The first step is to start the MongoDB database. Open your terminal and enter the following command:
 ```
 mongod

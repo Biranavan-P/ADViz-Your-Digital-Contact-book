@@ -24,8 +24,6 @@ You can install both libraries using the following command:
 npm install express mongodb
 ```
 
-A local instance of these libraries can be found in the folder "node_modules" in the project folder.
-If you need to install the libraries, you can delete the folder "node_modules" and run the above command.
 Please also install [mongosh](https://www.mongodb.com/docs/mongodb-shell/install/#std-label-mdb-shell-install)
 This is necessary to add the data to the database.
 ## How to run the project

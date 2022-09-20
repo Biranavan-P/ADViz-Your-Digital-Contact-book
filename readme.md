@@ -41,6 +41,8 @@ On older verions of MongoDB, you might need to run the following command:
 mongo
 ```
 
+If the service stops with an exit code 100, you need to create a folder called "data" in ~/data/db/ on macOS/Linux and C:\data\db on Windows and run the command again.
+
 **Important: Please do not close this terminal window, as the database will be closed.**
 
 ### The following steps can be skipped if you have already created the database with collection users!
@@ -62,7 +64,7 @@ db.users.insertMany([
 ])
 
 ```
-Now you have created a database called "advizDB" with a collection called "users" and inserted two users.
+Now you have created a database called "advizDB" with a collection called "users" and inserted two users. Please close this terminal window.
 
 ### Creating the collection "contacts"
 
@@ -74,7 +76,7 @@ I assume that the database "advizDB " already exists and the collection "users" 
 
 If another collection "contacts" already exists, it will be deleted automatically. 
 
-The script will create a new collection "contacts" and add the contacts to it.
+The script addContactsMongoDB.js in the project folder will create a new collection "contacts" and add the contacts to it.
 It is very important that you start the terminal in the project folder.
 Please enter the following command in the terminal:
 

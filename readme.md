@@ -40,17 +40,41 @@ On older verions of MongoDB, you might need to run the following command:
 mongo
 ```
 
+**Important: Please do not close this terminal window, as the database will be closed.**
 
+### The following steps can be skipped if you have already created the database with collection users!
+The next step is to create a database called "advizDB" and a collection called "users" filled with data.
+Open a new terminal and enter the following command:
+```
+mongosh
+```
+This will open the MongoDB shell.
+Now enter the following commands:
+```
+use advizDB
+
+db.createCollection("users")
+
+db.users.insertMany([
+   {"username": "admina", "password": "password", "role":"admin"},
+{"username": "normalo", "password": "password", "role":"normal"}
+])
+
+```
+Now you have created a database called "advizDB" with a collection called "users" and inserted two users.
+
+### Creating the contacts collection
 
 Before starting the NodeJS server I recommend to add some contacts to the database.
-I assume that the database "advizDB " already exists and the collection "users" is already created.
+I assume that the database "advizDB " already exists and the collection "users" is already created. If these conditions are not fulfilled please follow the steps above!
+
 
 **Attention!**
 
 If another collection "contacts" already exists, it will be deleted automatically. 
 
 The script will create a new collection "contacts" and add the contacts to it.
-It is ver important that you start the terminal in the project folder.
+It is very important that you start the terminal in the project folder.
 Please enter the following command in the terminal:
 
 ```

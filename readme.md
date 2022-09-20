@@ -6,7 +6,7 @@ Name: Biranavan Parameswaran
 
 Matrikel-Nr: 0577680
 
-Project name: ADViz (Projekt Ordner: biranavan_parameswaran )
+Project name: ADViz (Projekt Ordner: biri_justin-WAD2022 )
 
 ## Project Description
 This project is an implementation of a frontend website and a backend server.

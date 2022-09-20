@@ -64,7 +64,7 @@ db.users.insertMany([
 ```
 Now you have created a database called "advizDB" with a collection called "users" and inserted two users.
 
-### Creating the contacts collection
+### Creating the collection "contacts"
 
 Before starting the NodeJS server I recommend to add some contacts to the database.
 I assume that the database "advizDB " already exists and the collection "users" is already created. If these conditions are not fulfilled please follow the steps above!

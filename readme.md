@@ -28,7 +28,9 @@ Please also install [mongosh](https://www.mongodb.com/docs/mongodb-shell/install
 This is necessary to add the data to the database.
 ## How to run the project
 Disclaimer: If one of the following MongoDB commands does not work, ensure that the command is stored in the environment variable
-The first step is to start the MongoDB database. Open your terminal and enter the following command:
+
+
+The first step is to start the MongoDB database service. Open your terminal and enter the following command:
 ```
 mongod
 ```
@@ -39,7 +41,8 @@ mongo
 ```
 
 
-Before starting the server I recommend to add some contacts to the database.
+
+Before starting the NodeJS server I recommend to add some contacts to the database.
 I assume that the database "advizDB " already exists and the collection "users" is already created.
 
 **Attention!**

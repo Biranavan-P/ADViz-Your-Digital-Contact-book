@@ -16,7 +16,8 @@ The frontend is designed with HTML and CSS and the logic is injected by plain Ja
 The backend is designed with NodeJS and ExpressJS using a MongoDB database.
 The frontend can be displayed by any regular modern browser. 
 I recommend using the latest version of Mozilla Firefox.
-The backend can be run on any machine with NodeJS installed, however you need to have a MongoDB database instance running on the same machine.
+The backend can be run on any machine with NodeJS installed, however you need to have a MongoDB database instance running on the same machine. 
+I recommend using the latest version of [NodeJS](https://nodejs.org/en/) and [MongoDB](https://www.mongodb.com/try/download/community).
 In addition, you need the following library's: [express](https://expressjs.com/),[mongodb](https://www.npmjs.com/package/mongodb)
 
 You can install both libraries using the following command:

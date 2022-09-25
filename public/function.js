@@ -272,7 +272,7 @@ document.getElementById("loginBtn").onclick = async function () {
 
 
     }
-    else if (success === undefined || !success) {
+    else if (success !== undefined || success === false) {
         username.style.borderColor = "white";
         password.style.borderColor = "white";
         error = "Wrong Login Details."

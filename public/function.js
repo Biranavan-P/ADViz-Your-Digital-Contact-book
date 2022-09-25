@@ -269,10 +269,11 @@ document.getElementById("loginBtn").onclick = async function () {
         await changeTitle("Adviz | Home");
         await loadContacts("my");
         document.getElementById("map_container").style.display = "grid";
+        return;
 
 
     }
-    else if (success !== undefined || success === false) {
+    else  {
         username.style.borderColor = "white";
         password.style.borderColor = "white";
         error = "Wrong Login Details."

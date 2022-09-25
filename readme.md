@@ -20,15 +20,16 @@ The backend can be run on any machine with NodeJS installed, however you need to
 I recommend using the latest version of [NodeJS](https://nodejs.org/en/) and [MongoDB](https://www.mongodb.com/try/download/community).
 In addition, you need the following library's: [express](https://expressjs.com/),[mongodb](https://www.npmjs.com/package/mongodb)
 
-You can install both libraries using the following command:
+You can install all needed libraries with the following command:
+
 ```
-npm install express mongodb
+npm install
 ```
 
 Please also install [mongosh](https://www.mongodb.com/docs/mongodb-shell/install/#std-label-mdb-shell-install)
 This is necessary to add the data to the database.
 ## How to run the project
-Disclaimer: If one of the following MongoDB commands does not work, ensure that the command is stored in the environment variable
+Disclaimer: If one of the following MongoDB commands does not work, ensure that the command is stored in the environment variable. Please use the latest Version of MongoDB!
 
 
 The first step is to start the MongoDB database service. Open your terminal and enter the following command:
@@ -36,7 +37,7 @@ The first step is to start the MongoDB database service. Open your terminal and 
 mongod
 ```
 This will start the database on the default port 27017.
-On older verions of MongoDB, you might need to run the following command:
+On older versions of MongoDB, you might need to run the following command:
 ```
 mongo
 ```

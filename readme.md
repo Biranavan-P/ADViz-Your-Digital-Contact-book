@@ -4,7 +4,7 @@
 
 Name: Biranavan Parameswaran
 
-Matrikel-Nr: 0577680
+Matrikel-Nr: 577680
 
 Project name: ADViz (Projekt Ordner: biri_justin-WAD2022 )
 
@@ -20,16 +20,22 @@ The backend can be run on any machine with NodeJS installed, however you need to
 I recommend using the latest version of [NodeJS](https://nodejs.org/en/) and [MongoDB](https://www.mongodb.com/try/download/community).
 In addition, you need the following library's: [express](https://expressjs.com/),[mongodb](https://www.npmjs.com/package/mongodb)
 
-You can install all needed libraries with the following command:
-
+Clone this repo by entering: 
+```bash
+git clone https://github.com/Biranavan-P/biri_justin-WAD2022.git
 ```
+
+After downloading the repo, you need to install the required libraries. 
+Please navigate to the folder "biri_justin-WAD2022" and run the following command:
+```bash
 npm install
 ```
+
 
 Please also install [mongosh](https://www.mongodb.com/docs/mongodb-shell/install/#std-label-mdb-shell-install)
 This is necessary to add the data to the database.
 ## How to run the project
-Disclaimer: If one of the following MongoDB commands does not work, ensure that the command is stored in the environment variable. Please use the latest Version of MongoDB!
+Disclaimer: If one of the following MongoDB commands does not work, ensure that the command is stored in the environment variable. This project was developed with the MongoDB version 6.0.1!
 
 
 The first step is to start the MongoDB database service. Open your terminal and enter the following command:

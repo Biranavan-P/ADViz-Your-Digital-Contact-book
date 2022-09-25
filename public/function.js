@@ -259,7 +259,6 @@ document.getElementById("loginBtn").onclick = async function () {
         await initMap();
         last_updated_id = -1;
         document.getElementById("welcomeMessage").innerText = "Welcome, " + currentUser.getName() + ". Role: " + currentUser.getRole();
-        document.getElementById("login").style.display = "none";
 
         await changeTitle("Adviz | Home");
         await loadContacts("my");
@@ -267,7 +266,7 @@ document.getElementById("loginBtn").onclick = async function () {
 
 
     }
-    else{
+    else if (response.status === 401) {
         username.style.borderColor = "white";
         password.style.borderColor = "white";
         error = "Wrong Login Details."
@@ -275,7 +274,6 @@ document.getElementById("loginBtn").onclick = async function () {
         username.style.borderColor = "red";
         password.style.borderColor = "red";
     }
-    // Possible error cases
 
 }
 

@@ -7,6 +7,7 @@ let marker_dict = {
 }
 let currentUser;
 let last_updated_id = -1;
+let owner = null;
 
 
 // Inits the map screen
@@ -73,6 +74,7 @@ window.onload = function() {
     document.getElementById("addContactForm").style.display = "none";
     document.getElementById("updateContactForm").style.display = "none";
     last_updated_id = -1;
+    owner = null;
 
 }
 
@@ -154,6 +156,7 @@ let updateList = async (contactEntry) => {
 
                 let all_users = await getContact("all");
                 savedUser = all_users.find(o => o.name + " " + o.lastname === this.innerText);
+                owner = savedUser.owner;
 
                 if (currentUser.getRole() !== "admin") {
                     update_field_read_only(true)
@@ -249,8 +252,10 @@ document.getElementById("loginBtn").onclick = async function () {
         headers: headers,
         body: JSON.stringify(contact)  // body data type must match "Content-Type" header
     });
+    let success = await response.ok;
 
-    if (response.ok) {
+
+    if (success) {
         loginForm.style.display = "none";
         let data = await response.json();
 
@@ -258,6 +263,7 @@ document.getElementById("loginBtn").onclick = async function () {
 
         await initMap();
         last_updated_id = -1;
+        owner = null;
         document.getElementById("welcomeMessage").innerText = "Welcome, " + currentUser.getName() + ". Role: " + currentUser.getRole();
 
         await changeTitle("Adviz | Home");
@@ -266,13 +272,14 @@ document.getElementById("loginBtn").onclick = async function () {
 
 
     }
-    else if (response.status === 401) {
+    else if (!success) {
         username.style.borderColor = "white";
         password.style.borderColor = "white";
         error = "Wrong Login Details."
         errorMessage.innerText = error;
         username.style.borderColor = "red";
         password.style.borderColor = "red";
+
     }
 
 }
@@ -406,7 +413,7 @@ document.getElementById("updateContactBtn").onclick = async function (event) {
             "Phone": phoneForm.value,
             "Date of birth": dobForm.value,
             "Public Contact": isPublic.checked,
-            "Owner": currentUser.getName(),
+            "Owner":owner,
             "lat": coordinates.lat,
             "lng": coordinates.lng
 
@@ -635,12 +642,14 @@ let updateContact  = async (contactEntry) =>{
         });
         if ( response.ok) {
             last_updated_id = -1;
+            owner = null;
 
             await loadContacts("my");
         }
         else{
             alert("Der Kontakt konnte nicht geändert werden. Versuche es erneut!");
             last_updated_id = -1;
+            owner = null;
 
             await loadContacts("my");
 
@@ -667,12 +676,14 @@ let deleteContact = async () => {
         });
         if ( response.ok) {
             last_updated_id = -1;
+            owner = null;
 
             await loadContacts("my");
         }
         else{
             alert("Der Kontakt konnte nicht gelöscht werden. Versuche es erneut!");
             last_updated_id = -1;
+            owner = null;
 
             await loadContacts("my");
 

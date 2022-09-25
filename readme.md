@@ -129,7 +129,7 @@ The website will be displayed, and you can start using it.
 [TrueWay GeoCoding](https://rapidapi.com/trueway/api/trueway-geocoding/) \
 [Google Maps JavaScript API](https://developers.google.com/maps/documentation/javascript/overview) \
 [Maps JS API Loader](https://www.npmjs.com/package/@googlemaps/js-api-loader)
-[NodeJS](https://nodejs.org/en/) 
-[MongoDB](https://www.mongodb.com/try/download/community).
-[express (npm)](https://expressjs.com/)
+[NodeJS](https://nodejs.org/en/) \
+[MongoDB](https://www.mongodb.com/try/download/community)\
+[express (npm)](https://expressjs.com/)\
 [mongodb(npm)](https://www.npmjs.com/package/mongodb)

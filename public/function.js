@@ -252,7 +252,7 @@ document.getElementById("loginBtn").onclick = async function () {
         headers: headers,
         body: JSON.stringify(contact)  // body data type must match "Content-Type" header
     });
-    let success = await response.ok;
+    let success = response.ok;
 
 
     if (success) {
@@ -272,7 +272,7 @@ document.getElementById("loginBtn").onclick = async function () {
 
 
     }
-    else if (!success) {
+    else if (success === undefined || !success) {
         username.style.borderColor = "white";
         password.style.borderColor = "white";
         error = "Wrong Login Details."

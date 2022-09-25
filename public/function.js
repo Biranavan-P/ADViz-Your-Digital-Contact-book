@@ -258,10 +258,13 @@ document.getElementById("loginBtn").onclick = async function () {
 
         await initMap();
         last_updated_id = -1;
-         document.getElementById("welcomeMessage").innerText = "Welcome, " + currentUser.getName() + ". Role: " + currentUser.getRole();
+        document.getElementById("welcomeMessage").innerText = "Welcome, " + currentUser.getName() + ". Role: " + currentUser.getRole();
+        document.getElementById("login").style.display = "none";
+
         await changeTitle("Adviz | Home");
         await loadContacts("my");
         document.getElementById("map_container").style.display = "grid";
+
 
     }
     else{

@@ -123,6 +123,25 @@ http://localhost:3000/
 The website will be displayed, and you can start using it.
 
 
+## How to use the website
+The website is divided into two parts. The first part is the login page. The second part is the main page.
+The login page is displayed when you open the website. You can login with the following credentials:
+```
+username: admina
+password: password
+```
+or
+```
+username: normalo
+password: password
+```
+The login page will display an error message if you enter wrong credentials.
+After you have logged in, you will be redirected to the main page.
+
+In the main page you can see your contacts or all (public) contacts  if you are logged in as (normalo) admin . You can also add new contacts, edit existing contacts and delete contacts.
+All contacts are displayed on the left site of the page. In addition, the address of the contact is displayed on the map on the right side of the page.
+
+**Note**: The map will not be displayed if you are not connected to the internet. In addition, it will show you "For development purposes only" due to the fact that an API key from Google Maps is used. This API is connected to restrictions and therefore this hint is displayed.
 
 ## Dependencies / APIs
 

@@ -204,6 +204,8 @@ let password = document.getElementById("passwordLabel");
 
 document.getElementById("loginBtn").onclick = async function () {
     let errorMessage = document.getElementById("loginErrorMessage");
+    let username = document.getElementById("usernameLabel");
+    let password = document.getElementById("passwordLabel");
     let error = "";
     let userValue = username.value;
     let passwordValue = password.value;

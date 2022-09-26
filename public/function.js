@@ -271,17 +271,13 @@ document.getElementById("loginBtn").onclick = async function () {
         await changeTitle("Adviz | Home");
         await loadContacts("my");
         document.getElementById("map_container").style.display = "grid";
-        success = false;
 
 
     }
-    else if (success === false) {
-        username.style.borderColor = "white";
-        password.style.borderColor = "white";
-        error = "Wrong Login Details."
-        errorMessage.innerText = error;
-        username.style.borderColor = "red";
-        password.style.borderColor = "red";
+    else {
+
+        alert("Wrong Login Details.");
+
 
     }
 

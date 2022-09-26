@@ -161,7 +161,7 @@ The header buttons: Map, Contacts, About are not implemented yet and therefore d
 
 ## Testing
 You can run a test on the server. You can find the test in the test/myExpressServerTest.js . Please start the server as described above and open a new terminal window.
-Please enter the following command in the terminal:
+Please enter the following command in the terminal from the project folder:
 ```
 npx mocha
 ```

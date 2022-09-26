@@ -267,10 +267,11 @@ document.getElementById("loginBtn").onclick = async function () {
         last_updated_id = -1;
         owner = null;
         document.getElementById("welcomeMessage").innerText = "Welcome, " + currentUser.getName() + ". Role: " + currentUser.getRole();
-
-        await changeTitle("Adviz | Home");
-        await loadContacts("my");
         document.getElementById("map_container").style.display = "grid";
+
+        changeTitle("Adviz | Home");
+       await loadContacts("my");
+
 
 
     }

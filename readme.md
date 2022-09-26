@@ -170,6 +170,8 @@ or if the above command does not work:
 npm test
 ```
 
+Attention: The test will overwrite the collection contacts. Please make sure that you have a backup of the collection contacts before running the test.
+
 
 ## Dependencies / APIs
 

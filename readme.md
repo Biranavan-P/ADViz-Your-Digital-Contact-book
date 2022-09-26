@@ -159,6 +159,18 @@ All contacts are displayed on the left site of the page. In addition, the addres
 The header buttons: Map, Contacts, About are not implemented yet and therefore dont have any functionality yet.
 **Note**: The map will not be displayed if you are not connected to the internet. In addition, it will show you "For development purposes only" due to the fact that an API key from Google Maps is used. This API is connected to restrictions and therefore this hint is displayed.
 
+## Testing
+You can run a test on the server. You can find the test in the test/myExpressServerTest.js . Please start the server as described above and open a new terminal window.
+Please enter the following command in the terminal:
+```
+npx mocha
+```
+or if the above command does not work:
+```
+npm test
+```
+
+
 ## Dependencies / APIs
 
 [TrueWay GeoCoding](https://rapidapi.com/trueway/api/trueway-geocoding/) \

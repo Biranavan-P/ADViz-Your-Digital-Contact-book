@@ -20,7 +20,7 @@ The backend can be run on any machine with NodeJS installed, however you need to
 I recommend using the latest version of [NodeJS](https://nodejs.org/en/) and [MongoDB](https://www.mongodb.com/try/download/community).
 In addition, you need the following library's: [express](https://expressjs.com/),[mongodb](https://www.npmjs.com/package/mongodb)
 
-Clone this repo by entering: 
+Clone this repo by entering this command in to your terminal: 
 ```bash
 git clone https://github.com/Biranavan-P/biri_justin-WAD2022.git
 ```
@@ -30,6 +30,11 @@ Please navigate to the folder "biri_justin-WAD2022" and run the following comman
 ```bash
 npm install
 ```
+
+Please open this project in an IDE of your choice and navigate to the ./index.html file.
+
+If the IDE asks you to install additional UNPKG packages (Font Awesome Script and Google Maps JS API Loader) which are required for the project, please install them.
+
 
 
 Please also install [mongosh](https://www.mongodb.com/docs/mongodb-shell/install/#std-label-mdb-shell-install)
@@ -48,7 +53,7 @@ On older versions of MongoDB, you might need to run the following command:
 mongo
 ```
 
-If the service stops with an exit code 100, you need to create a folder called "data" in ~/data/db/ on macOS/Linux and C:\data\db on Windows and run the command again.
+If the service stops with an exit code 100, you need to create a folder called "data\db" in ~/data/db/ on macOS/Linux and C:\data\db on Windows and run the command again.
 
 **Important: Please do not close this terminal window, as the database will be closed.**
 
@@ -62,9 +67,13 @@ This will open the MongoDB shell.
 Now enter the following commands:
 ```
 use advizDB
+```
 
+```
 db.createCollection("users")
+```
 
+```
 db.users.insertMany([
    {"username": "admina", "password": "password", "role":"admin"},
 {"username": "normalo", "password": "password", "role":"normal"}
@@ -97,11 +106,11 @@ mongo localhost:27017/advizDB .\addContactsMongoDB.js
 
 Added contacts to DB! will be displayed if the script was successful.
 
+
+
 Now you can start the server from the project folder by entering the following command in the terminal:
 ```
 node myExpressServer.js
-
-
 ```
 The server will start and listen on port 3000. The server will display the following message:
 ```
@@ -136,11 +145,18 @@ username: normalo
 password: password
 ```
 The login page will display an error message if you enter wrong credentials.
+
+The buttons Create Account and Reset Password are not implemented yet and therefore dont have any functionality yet.
+
 After you have logged in, you will be redirected to the main page.
 
-In the main page you can see your contacts or all (public) contacts  if you are logged in as (normalo) admin . You can also add new contacts, edit existing contacts and delete contacts.
+In the main page you can see your contacts or all (public) contacts  if you are logged in as (normalo) admin. In addition, you can push the buttons Show All Contacts and Show All My Contacts
+
+You can also add new contacts, edit existing contacts and delete contacts.
 All contacts are displayed on the left site of the page. In addition, the address of the contact is displayed on the map on the right side of the page.
 
+
+The header buttons: Map, Contacts, About are not implemented yet and therefore dont have any functionality yet.
 **Note**: The map will not be displayed if you are not connected to the internet. In addition, it will show you "For development purposes only" due to the fact that an API key from Google Maps is used. This API is connected to restrictions and therefore this hint is displayed.
 
 ## Dependencies / APIs

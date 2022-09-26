@@ -156,7 +156,6 @@ let updateList = async (contactEntry) => {
 
                 let all_users = await getContact("all");
                 savedUser = all_users.find(o => o.name + " " + o.lastname === this.innerText);
-                owner = savedUser.owner;
 
                 if (currentUser.getRole() !== "admin") {
                     update_field_read_only(true)
@@ -192,6 +191,7 @@ let showUpdateContact = (ContactEntry) => {
         setCheckboxValue(box, ContactEntry.isPublic);
     }
     last_updated_id = ContactEntry._id;
+    owner = ContactEntry.owner;
 }
 
 

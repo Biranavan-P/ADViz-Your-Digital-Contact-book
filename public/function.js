@@ -150,8 +150,9 @@ let updateList = async (contactEntry) => {
     listItems.forEach(function (item) {
         item.onclick = async function () {
             update_field_read_only(false);
+            let contacts = await getContact("all");
 
-            let savedUser = currentUser.getContacts().find(o => o.name + " " + o.lastname === this.innerText);
+            let savedUser = contacts.find(o => o.name + " " + o.lastname === this.innerText);
             if (!savedUser) {
 
                 let all_users = await getContact("all");

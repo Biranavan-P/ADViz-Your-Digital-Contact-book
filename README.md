@@ -21,11 +21,11 @@ In addition, you need the following library's: [express](https://expressjs.com/)
 
 Clone this repo by entering this command in to your terminal: 
 ```bash
-git clone https://github.com/Biranavan-P/biri_justin-WAD2022.git
+git clone https://github.com/Biranavan-P/ADViz-Your-Digital-Contact-book.git
 ```
 
 After downloading the repo, you need to install the required libraries. 
-Please navigate to the folder "biri_justin-WAD2022" and run the following command:
+Please navigate to the folder "ADViz-Your-Digital-Contact-book" and run the following command:
 ```bash
 npm install
 ```

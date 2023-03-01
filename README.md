@@ -105,8 +105,16 @@ mongo localhost:27017/advizDB .\addContactsMongoDB.js
 
 Added contacts to DB! will be displayed if the script was successful.
 
+### Enter your API keys
+Please navigate to public/function.js and enter your API keys for Google Maps and X-RapidAPI.
 
+Google Maps API key: line 16
 
+X-RapidAPI key: line 525
+
+You can find more information about the API keys under the section [Dependencies / APIs](#dependencies--apis).
+
+### Start the NodeJS server
 Now you can start the server from the project folder by entering the following command in the terminal:
 ```
 node myExpressServer.js

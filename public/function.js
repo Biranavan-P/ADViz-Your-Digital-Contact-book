@@ -13,7 +13,7 @@ let owner = null;
 // Inits the map screen
 let initMap = async () => {
     const loader = await new google.maps.plugins.loader.Loader({
-        apiKey: "AIzaSyBF0SvLTZkO3pThLmyHnkOrWLCBsWG3ikE",
+        apiKey: "",
         version: "weekly",
         libraries: ["drawing"]
     });

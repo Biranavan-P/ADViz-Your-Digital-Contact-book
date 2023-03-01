@@ -106,6 +106,8 @@ mongo localhost:27017/advizDB .\addContactsMongoDB.js
 Added contacts to DB! will be displayed if the script was successful.
 
 ### Enter your API keys
+**Due to the requirements of the university, I did not secure the API keys using a .env file.**
+
 Please navigate to public/function.js and enter your API keys for Google Maps and TrueWay Geocoding.
 
 Google Maps API key: line 16

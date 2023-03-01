@@ -522,7 +522,7 @@ let get_lat_long =async (street, zip, city) => {
         method: 'GET',
         headers: {
             'X-RapidAPI-Host': 'trueway-geocoding.p.rapidapi.com',
-            'X-RapidAPI-Key': '6d4ee9038amshd48d6b7ff082733p15d30ajsnf3fbcf93f965'
+            'X-RapidAPI-Key': ''
         }
     };
     let url = "https://trueway-geocoding.p.rapidapi.com/Geocode?address=" + street + "%20" + zip + "%20" + city + "&language=de"
